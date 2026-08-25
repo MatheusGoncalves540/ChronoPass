@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.chronopass.app.PunchRulesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-25T21:11:18" hostname="DESKTOP-TFB0JFD" time="0.015">
+  <properties/>
+  <testcase name="totalWorked_sumsIntervals" classname="com.chronopass.app.PunchRulesTest" time="0.014"/>
+  <testcase name="afterEntrada_isSaida" classname="com.chronopass.app.PunchRulesTest" time="0.001"/>
+  <testcase name="noPunchYet_isEntrada" classname="com.chronopass.app.PunchRulesTest" time="0.0"/>
+  <testcase name="afterSaida_isEntrada" classname="com.chronopass.app.PunchRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,1 @@
+{"src\\test\\java\\com\\chronopass\\app\\PunchRulesTest.kt":["<init>:com.chronopass.app.PunchRulesTest","afterEntrada_isSaida:com.chronopass.app.PunchRulesTest","noPunchYet_isEntrada:com.chronopass.app.PunchRulesTest","afterSaida_isEntrada:com.chronopass.app.PunchRulesTest","PunchRulesTest:com.chronopass.app","totalWorked_sumsIntervals:com.chronopass.app.PunchRulesTest"]}

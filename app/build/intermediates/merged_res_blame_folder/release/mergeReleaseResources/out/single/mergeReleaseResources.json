@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.chronopass.app-release-69:/xml_file_paths.xml.flat",
+        "source": "com.chronopass.app-main-70:/xml/file_paths.xml"
+    }
+]
