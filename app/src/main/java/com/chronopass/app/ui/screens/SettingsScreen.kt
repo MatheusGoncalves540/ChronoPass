@@ -37,8 +37,13 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { granted ->
         if (granted.values.any { it }) scope.launch {
-            getCurrentFix(context)?.let { lat = it.latitude.toString(); lon = it.longitude.toString() }
-        }
+            msg = "Obtendo localização…"
+            val fix = getCurrentFix(context)
+            if (fix != null) {
+                lat = fix.latitude.toString(); lon = fix.longitude.toString()
+                msg = "Localização preenchida (precisão ${fix.accuracy.toInt()}m)."
+            } else msg = "Não foi possível obter a localização agora."
+        } else msg = "Permissão de localização negada."
     }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Configurações") }) }) { pad ->

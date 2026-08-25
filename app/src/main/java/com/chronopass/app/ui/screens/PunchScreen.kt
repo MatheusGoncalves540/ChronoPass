@@ -35,6 +35,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
     var step by remember { mutableStateOf(Step.READY) }
     var photo by remember { mutableStateOf<File?>(null) }
     var fix by remember { mutableStateOf<Fix?>(null) }
+    var locating by remember { mutableStateOf(true) }
     var timestamp by remember { mutableStateOf(0L) }
     val store by vm.store.collectAsState()
 
@@ -89,7 +90,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                 }
 
                 Step.CONFIRM -> {
-                    LaunchedEffect(photo) { fix = getCurrentFix(context) }
+                    LaunchedEffect(photo) { locating = true; fix = getCurrentFix(context); locating = false }
                     Spacer(Modifier.height(16.dp))
                     Text("Confirmar marcação?", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(16.dp))
@@ -98,7 +99,13 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                     Text(TimeUtil.time(timestamp))
                     Spacer(Modifier.height(12.dp))
                     val f = fix
-                    if (f == null) {
+                    if (locating) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Obtendo localização…")
+                        }
+                    } else if (f == null) {
                         Text("Localização não obtida", textAlign = TextAlign.Center)
                     } else {
                         Text("Localização encontrada")

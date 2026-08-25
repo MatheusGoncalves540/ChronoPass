@@ -1,4 +1,4 @@
-#Tue Aug 25 18:11:21 BRT 2026
+#Tue Aug 25 19:41:57 BRT 2026
 base.0=D\:\\BUSINESS\\ChronoPass\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=D\:\\BUSINESS\\ChronoPass\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.10=D\:\\BUSINESS\\ChronoPass\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
