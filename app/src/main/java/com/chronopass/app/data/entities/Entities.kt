@@ -11,6 +11,7 @@ data class Employee(
     val name: String,
     val code: String = "",
     val active: Boolean = true,
+    val deleted: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
 )
 
@@ -29,6 +30,7 @@ data class Punch(
     val editedBy: String? = null,
     val editedAt: Long? = null,
     val editReason: String? = null,
+    val deleted: Boolean = false,
 )
 
 @Entity(tableName = "store")

@@ -20,6 +20,9 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            // ponytail: assina com a chave de debug pra gerar um APK release instalável
+            // sem keystore próprio. O ganho de FPS vem de debuggable=false, não do R8.
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

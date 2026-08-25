@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,22 +33,27 @@ private enum class Period(val label: String) { TODAY("Hoje"), YESTERDAY("Ontem")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordsScreen(vm: ChronoViewModel, nav: NavController) {
-    val employees by vm.allEmployees.collectAsState()
-    val names = remember(employees) { employees.associate { it.id to it.name } }
+    val activeEmployees by vm.allEmployees.collectAsState()
+    // Resolve names for deleted employees too, and know which are deleted.
+    val everyone by vm.employeesWithDeleted.collectAsState()
+    val names = remember(everyone) { everyone.associate { it.id to it.name } }
+    val deletedIds = remember(everyone) { everyone.filter { it.deleted }.map { it.id }.toSet() }
     var period by remember { mutableStateOf(Period.TODAY) }
     var employeeFilter by remember { mutableStateOf<Long?>(null) }
     var selected by remember { mutableStateOf<Punch?>(null) }
     var adding by remember { mutableStateOf(false) }
 
-    val now = System.currentTimeMillis()
-    val from: Long; val to: Long
-    when (period) {
-        Period.TODAY -> { from = TimeUtil.startOfDay(now); to = TimeUtil.endOfDay(now) }
-        Period.YESTERDAY -> { from = TimeUtil.startOfDay(now - 86_400_000L); to = TimeUtil.endOfDay(now - 86_400_000L) }
-        Period.WEEK -> { from = TimeUtil.startOfDay(now - 6 * 86_400_000L); to = TimeUtil.endOfDay(now) }
-        Period.ALL -> { from = 0L; to = Long.MAX_VALUE }
+    val range = remember(period) {
+        val now = System.currentTimeMillis()
+        when (period) {
+            Period.TODAY -> TimeUtil.startOfDay(now) to TimeUtil.endOfDay(now)
+            Period.YESTERDAY -> TimeUtil.startOfDay(now - 86_400_000L) to TimeUtil.endOfDay(now - 86_400_000L)
+            Period.WEEK -> TimeUtil.startOfDay(now - 6 * 86_400_000L) to TimeUtil.endOfDay(now)
+            Period.ALL -> 0L to Long.MAX_VALUE
+        }
     }
-    val punches by vm.repo.punchesBetween(from, to).collectAsState(initial = emptyList())
+    val punches by remember(range) { vm.repo.punchesBetween(range.first, range.second) }
+        .collectAsState(initial = emptyList())
     val shown = punches.filter { employeeFilter == null || it.employeeId == employeeFilter }
 
     Scaffold(
@@ -65,7 +71,7 @@ fun RecordsScreen(vm: ChronoViewModel, nav: NavController) {
             }
             Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp)) {
                 FilterChip(selected = employeeFilter == null, onClick = { employeeFilter = null }, label = { Text("Todos") })
-                employees.forEach { e ->
+                activeEmployees.forEach { e ->
                     Spacer(Modifier.width(6.dp))
                     FilterChip(selected = employeeFilter == e.id, onClick = { employeeFilter = e.id }, label = { Text(e.name) })
                 }
@@ -76,10 +82,26 @@ fun RecordsScreen(vm: ChronoViewModel, nav: NavController) {
             } else {
                 LazyColumn {
                     items(shown, key = { it.id }) { p ->
+                        val gone = p.employeeId in deletedIds || p.employeeId !in names
                         ListItem(
-                            headlineContent = { Text(names[p.employeeId] ?: "?") },
+                            headlineContent = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(names[p.employeeId] ?: "Funcionário excluído")
+                                    if (gone) {
+                                        Spacer(Modifier.width(6.dp))
+                                        Icon(Icons.Default.Warning, "Funcionário excluído",
+                                            tint = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.size(16.dp))
+                                    }
+                                }
+                            },
                             supportingContent = {
-                                Text("${if (p.type == PunchType.IN) "Entrada" else "Saída"} — ${TimeUtil.date(p.timestamp)} ${TimeUtil.time(p.timestamp)}")
+                                Column {
+                                    Text("${if (p.type == PunchType.IN) "Entrada" else "Saída"} — ${TimeUtil.date(p.timestamp)} ${TimeUtil.time(p.timestamp)}")
+                                    if (gone) Text("Funcionário não existe mais",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall)
+                                }
                             },
                             trailingContent = { if (p.editedAt != null) AssistChip(onClick = {}, label = { Text("editado") }) },
                             modifier = Modifier.clickable { selected = p }
@@ -97,7 +119,7 @@ fun RecordsScreen(vm: ChronoViewModel, nav: NavController) {
             onDelete = { vm.deletePunch(p); selected = null })
     }
     if (adding) {
-        AddPunchDialog(employees, onDismiss = { adding = false }) { p -> vm.updatePunch(p); adding = false }
+        AddPunchDialog(activeEmployees, onDismiss = { adding = false }) { p -> vm.updatePunch(p); adding = false }
     }
 }
 
@@ -144,24 +166,26 @@ private fun AddPunchDialog(employees: List<Employee>, onDismiss: () -> Unit, onS
     var type by remember { mutableStateOf(PunchType.IN) }
     var dateTime by remember { mutableStateOf(SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "BR")).format(Date())) }
     var reason by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
+    var picking by remember { mutableStateOf(false) }
     val parser = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "BR"))
     val parsed = runCatching { parser.parse(dateTime)?.time }.getOrNull()
+
+    if (picking) {
+        com.chronopass.app.ui.components.EmployeePickerDialog(
+            title = "Selecionar funcionário",
+            employees = employees,
+            onDismiss = { picking = false },
+            onPick = { employeeId = it.id; picking = false }
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Adicionar marcação") },
         text = {
             Column {
-                Box {
-                    OutlinedButton(onClick = { expanded = true }) {
-                        Text(employees.firstOrNull { it.id == employeeId }?.name ?: "Selecionar funcionário")
-                    }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        employees.forEach { e ->
-                            DropdownMenuItem(text = { Text(e.name) }, onClick = { employeeId = e.id; expanded = false })
-                        }
-                    }
+                OutlinedButton(onClick = { picking = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(employees.firstOrNull { it.id == employeeId }?.name ?: "Selecionar funcionário")
                 }
                 Spacer(Modifier.height(8.dp))
                 Row {

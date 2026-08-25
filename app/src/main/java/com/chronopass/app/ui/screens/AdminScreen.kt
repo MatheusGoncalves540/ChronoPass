@@ -12,13 +12,14 @@ import com.chronopass.app.ui.ChronoViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminScreen(vm: ChronoViewModel, nav: NavController) {
-    var unlocked by remember { mutableStateOf(false) }
+    // Unlock state lives in the ViewModel so it survives navigation inside the
+    // admin area; it's relocked by HomeScreen when the user leaves the panel.
     var input by remember { mutableStateOf("") }
     var error by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Administração") }) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().padding(16.dp)) {
-            if (!unlocked) {
+            if (!vm.adminUnlocked) {
                 Spacer(Modifier.height(24.dp))
                 Text("Senha do administrador", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(12.dp))
@@ -32,7 +33,7 @@ fun AdminScreen(vm: ChronoViewModel, nav: NavController) {
                 Spacer(Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        vm.checkAdminPassword(input) { ok -> if (ok) unlocked = true else error = true }
+                        vm.checkAdminPassword(input) { ok -> if (ok) vm.adminUnlocked = true else error = true }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("ENTRAR") }

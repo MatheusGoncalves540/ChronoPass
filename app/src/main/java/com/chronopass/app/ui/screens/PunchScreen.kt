@@ -118,6 +118,8 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                     }
                     Spacer(Modifier.weight(1f))
                     Button(
+                        // Só libera depois que a localização resolve (encontrada OU falhou de vez).
+                        enabled = !locating,
                         onClick = {
                             val f2 = fix
                             vm.savePunch(
@@ -129,7 +131,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                             ) { step = Step.DONE }
                         },
                         modifier = Modifier.fillMaxWidth().height(56.dp)
-                    ) { Text("CONFIRMAR") }
+                    ) { Text(if (locating) "AGUARDE A LOCALIZAÇÃO…" else "CONFIRMAR") }
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { photo?.delete(); photo = null; step = Step.CAMERA },

@@ -17,15 +17,14 @@ class ChronoRepository(context: Context) {
 
     // Employees
     fun employeesFlow() = employees.all()
+    fun employeesWithDeletedFlow() = employees.allIncludingDeleted()
     fun activeEmployeesFlow() = employees.activeList()
     suspend fun employee(id: Long) = employees.byId(id)
     suspend fun allEmployees() = withContext(Dispatchers.IO) { employees.allOnce() }
     suspend fun addEmployee(e: Employee) = withContext(Dispatchers.IO) { employees.insert(e) }
     suspend fun updateEmployee(e: Employee) = employees.update(e)
-    suspend fun deleteEmployee(e: Employee) = withContext(Dispatchers.IO) {
-        punches.deleteForEmployee(e.id)
-        employees.delete(e)
-    }
+    // Soft delete: keeps the row (and never touches the employee's punches).
+    suspend fun deleteEmployee(e: Employee) = withContext(Dispatchers.IO) { employees.softDelete(e.id) }
 
     // Punches
     suspend fun nextType(employeeId: Long): PunchType = withContext(Dispatchers.IO) {
@@ -33,11 +32,21 @@ class ChronoRepository(context: Context) {
     }
     suspend fun addPunch(p: Punch) = withContext(Dispatchers.IO) { punches.insert(p) }
     suspend fun updatePunch(p: Punch) = punches.update(p)
-    suspend fun deletePunch(p: Punch) = punches.delete(p)
+    suspend fun deletePunch(p: Punch) = withContext(Dispatchers.IO) { punches.softDelete(p.id) }
     fun punchesBetween(from: Long, to: Long) = punches.between(from, to)
     suspend fun forEmployeeBetween(id: Long, from: Long, to: Long) =
         withContext(Dispatchers.IO) { punches.forEmployeeBetween(id, from, to) }
     suspend fun allPunches() = withContext(Dispatchers.IO) { punches.allOnce() }
+    suspend fun activePunches() = withContext(Dispatchers.IO) { punches.allActiveOnce() }
+
+    // Trash (soft-deleted employees + punches). Empty-trash purges them for good.
+    suspend fun trashCount(): Int = withContext(Dispatchers.IO) {
+        employees.trashCount() + punches.trashCount()
+    }
+    suspend fun emptyTrash() = withContext(Dispatchers.IO) {
+        punches.purgeDeleted()
+        employees.purgeDeleted()
+    }
 
     // Store
     fun storeFlow() = stores.get()

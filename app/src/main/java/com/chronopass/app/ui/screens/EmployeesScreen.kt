@@ -59,7 +59,7 @@ fun EmployeesScreen(vm: ChronoViewModel, nav: NavController) {
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
             title = { Text("Excluir funcionário") },
-            text = { Text("Excluir ${e.name} e todas as suas marcações? Esta ação não pode ser desfeita.") },
+            text = { Text("Excluir ${e.name}? As marcações dele serão mantidas no histórico (marcadas como funcionário excluído). Vai para a lixeira.") },
             confirmButton = { TextButton(onClick = { vm.deleteEmployee(e); confirmDelete = null }) { Text("EXCLUIR") } },
             dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text("Cancelar") } }
         )

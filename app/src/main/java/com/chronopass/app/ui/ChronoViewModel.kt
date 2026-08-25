@@ -1,6 +1,9 @@
 package com.chronopass.app.ui
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronopass.app.data.entities.*
@@ -20,8 +23,14 @@ class ChronoViewModel(app: Application) : AndroidViewModel(app) {
         repo.activeEmployeesFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val allEmployees: StateFlow<List<Employee>> =
         repo.employeesFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    // Includes soft-deleted employees, so Records can resolve names + show the "excluído" marker.
+    val employeesWithDeleted: StateFlow<List<Employee>> =
+        repo.employeesWithDeletedFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val store: StateFlow<Store?> =
         repo.storeFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    // Admin stays unlocked while navigating inside the admin area; HomeScreen relocks on exit.
+    var adminUnlocked by mutableStateOf(false)
 
     suspend fun nextType(employeeId: Long): PunchType = repo.nextType(employeeId)
 
@@ -52,4 +61,8 @@ class ChronoViewModel(app: Application) : AndroidViewModel(app) {
     fun checkAdminPassword(input: String, result: (Boolean) -> Unit) = viewModelScope.launch {
         result(input == adminPassword())
     }
+
+    // Trash
+    fun loadTrashCount(result: (Int) -> Unit) = viewModelScope.launch { result(repo.trashCount()) }
+    fun emptyTrash(done: () -> Unit) = viewModelScope.launch { repo.emptyTrash(); done() }
 }

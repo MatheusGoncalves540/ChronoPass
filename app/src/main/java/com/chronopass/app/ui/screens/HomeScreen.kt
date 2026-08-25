@@ -22,6 +22,9 @@ fun HomeScreen(vm: ChronoViewModel, nav: NavController) {
     val employees by vm.activeEmployees.collectAsState()
     var query by remember { mutableStateOf("") }
 
+    // Leaving the admin area (any return to home) relocks it.
+    LaunchedEffect(Unit) { vm.adminUnlocked = false }
+
     Scaffold(
         topBar = {
             TopAppBar(

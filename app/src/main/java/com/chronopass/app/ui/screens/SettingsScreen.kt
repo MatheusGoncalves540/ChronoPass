@@ -33,6 +33,10 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
 
     var newPw by remember { mutableStateOf("") }
 
+    var trashCount by remember { mutableStateOf(0) }
+    var confirmTrash by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { vm.loadTrashCount { trashCount = it } }
+
     val locPerm = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { granted ->
@@ -77,7 +81,33 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                 vm.setAdminPassword(newPw); newPw = ""; msg = "Senha atualizada."
             }, modifier = Modifier.fillMaxWidth()) { Text("ALTERAR SENHA") }
 
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            Text("Lixeira", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+            Text("Funcionários e marcações excluídos ficam aqui. Limpar apaga em definitivo.",
+                style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(
+                enabled = trashCount > 0,
+                onClick = { confirmTrash = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) { Text(if (trashCount > 0) "LIMPAR LIXEIRA ($trashCount)" else "LIXEIRA VAZIA") }
+
             msg?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         }
+    }
+
+    if (confirmTrash) {
+        AlertDialog(
+            onDismissRequest = { confirmTrash = false },
+            title = { Text("Limpar lixeira") },
+            text = { Text("Apagar em definitivo $trashCount item(ns)? Esta ação não pode ser desfeita.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmTrash = false
+                    vm.emptyTrash { vm.loadTrashCount { trashCount = it }; msg = "Lixeira esvaziada." }
+                }) { Text("APAGAR TUDO") }
+            },
+            dismissButton = { TextButton(onClick = { confirmTrash = false }) { Text("Cancelar") } }
+        )
     }
 }

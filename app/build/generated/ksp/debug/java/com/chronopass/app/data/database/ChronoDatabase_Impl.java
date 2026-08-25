@@ -45,15 +45,15 @@ public final class ChronoDatabase_Impl extends ChronoDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `employee` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `code` TEXT NOT NULL, `active` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `punch` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `employeeId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `type` TEXT NOT NULL, `latitude` REAL, `longitude` REAL, `accuracy` REAL, `photoPath` TEXT, `createdAt` INTEGER NOT NULL, `editedBy` TEXT, `editedAt` INTEGER, `editReason` TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `employee` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `code` TEXT NOT NULL, `active` INTEGER NOT NULL, `deleted` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `punch` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `employeeId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `type` TEXT NOT NULL, `latitude` REAL, `longitude` REAL, `accuracy` REAL, `photoPath` TEXT, `createdAt` INTEGER NOT NULL, `editedBy` TEXT, `editedAt` INTEGER, `editReason` TEXT, `deleted` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `store` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `radius` REAL NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd67712a024ec3f332ed77617cab8e2ae')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '57c35ac71f68295ab87c8985590e8257')");
       }
 
       @Override
@@ -105,11 +105,12 @@ public final class ChronoDatabase_Impl extends ChronoDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsEmployee = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsEmployee = new HashMap<String, TableInfo.Column>(6);
         _columnsEmployee.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsEmployee.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsEmployee.put("code", new TableInfo.Column("code", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsEmployee.put("active", new TableInfo.Column("active", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsEmployee.put("deleted", new TableInfo.Column("deleted", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsEmployee.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysEmployee = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesEmployee = new HashSet<TableInfo.Index>(0);
@@ -120,7 +121,7 @@ public final class ChronoDatabase_Impl extends ChronoDatabase {
                   + " Expected:\n" + _infoEmployee + "\n"
                   + " Found:\n" + _existingEmployee);
         }
-        final HashMap<String, TableInfo.Column> _columnsPunch = new HashMap<String, TableInfo.Column>(12);
+        final HashMap<String, TableInfo.Column> _columnsPunch = new HashMap<String, TableInfo.Column>(13);
         _columnsPunch.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPunch.put("employeeId", new TableInfo.Column("employeeId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPunch.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -133,6 +134,7 @@ public final class ChronoDatabase_Impl extends ChronoDatabase {
         _columnsPunch.put("editedBy", new TableInfo.Column("editedBy", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPunch.put("editedAt", new TableInfo.Column("editedAt", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPunch.put("editReason", new TableInfo.Column("editReason", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsPunch.put("deleted", new TableInfo.Column("deleted", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysPunch = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesPunch = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoPunch = new TableInfo("punch", _columnsPunch, _foreignKeysPunch, _indicesPunch);
@@ -171,7 +173,7 @@ public final class ChronoDatabase_Impl extends ChronoDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "d67712a024ec3f332ed77617cab8e2ae", "23d231ee4f36a35bd3f28d8236466fa5");
+    }, "57c35ac71f68295ab87c8985590e8257", "9a0213d46c18f63822bd496e1000b490");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

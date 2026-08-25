@@ -75,8 +75,10 @@ object BackupManager {
         val emps = root.optJSONArray("employees") ?: JSONArray()
         for (i in 0 until emps.length()) {
             val o = emps.getJSONObject(i)
-            empDao.insert(Employee(o.getLong("id"), o.getString("name"), o.optString("code"),
-                o.optBoolean("active", true), o.optLong("createdAt")))
+            empDao.insert(Employee(
+                id = o.getLong("id"), name = o.getString("name"), code = o.optString("code"),
+                active = o.optBoolean("active", true), deleted = o.optBoolean("deleted", false),
+                createdAt = o.optLong("createdAt")))
         }
         val puns = root.optJSONArray("punches") ?: JSONArray()
         for (i in 0 until puns.length()) {
@@ -91,6 +93,7 @@ object BackupManager {
                 editedBy = if (o.isNull("editedBy")) null else o.getString("editedBy"),
                 editedAt = if (o.isNull("editedAt")) null else o.getLong("editedAt"),
                 editReason = if (o.isNull("editReason")) null else o.getString("editReason"),
+                deleted = o.optBoolean("deleted", false),
             ))
         }
         if (root.has("store")) {
@@ -107,7 +110,7 @@ object BackupManager {
 
     private fun employeeJson(e: Employee) = JSONObject()
         .put("id", e.id).put("name", e.name).put("code", e.code)
-        .put("active", e.active).put("createdAt", e.createdAt)
+        .put("active", e.active).put("deleted", e.deleted).put("createdAt", e.createdAt)
     private fun punchJson(p: Punch) = JSONObject()
         .put("id", p.id).put("employeeId", p.employeeId).put("timestamp", p.timestamp)
         .put("type", p.type.name).put("latitude", p.latitude ?: JSONObject.NULL)
@@ -117,6 +120,7 @@ object BackupManager {
         .put("editedBy", p.editedBy ?: JSONObject.NULL)
         .put("editedAt", p.editedAt ?: JSONObject.NULL)
         .put("editReason", p.editReason ?: JSONObject.NULL)
+        .put("deleted", p.deleted)
     private fun storeJson(s: Store) = JSONObject()
         .put("id", s.id).put("name", s.name).put("latitude", s.latitude)
         .put("longitude", s.longitude).put("radius", s.radius.toDouble())

@@ -31,6 +31,7 @@ fun ReportsScreen(vm: ChronoViewModel, nav: NavController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val employees by vm.allEmployees.collectAsState()
+    val everyone by vm.employeesWithDeleted.collectAsState()
     var status by remember { mutableStateOf<String?>(null) }
     var pdfPicker by remember { mutableStateOf(false) }
 
@@ -73,8 +74,8 @@ fun ReportsScreen(vm: ChronoViewModel, nav: NavController) {
         Column(Modifier.padding(pad).fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = {
                 scope.launch {
-                    val all = vm.repo.allPunches()
-                    val names = employees.associate { it.id to it.name }
+                    val all = vm.repo.activePunches()
+                    val names = everyone.associate { it.id to it.name }
                     val file = File(exportsDir(), "chronopass_${today()}.csv")
                     withContext(Dispatchers.IO) { CsvExport.write(file, all, names) }
                     share(file, "text/csv")
@@ -94,29 +95,23 @@ fun ReportsScreen(vm: ChronoViewModel, nav: NavController) {
     }
 
     if (pdfPicker) {
-        AlertDialog(
-            onDismissRequest = { pdfPicker = false },
-            title = { Text("PDF — selecionar funcionário") },
-            text = {
-                Column {
-                    employees.forEach { e ->
-                        TextButton(onClick = {
-                            pdfPicker = false
-                            scope.launch {
-                                val now = System.currentTimeMillis()
-                                val from = TimeUtil.startOfDay(now - 30L * 86_400_000L)
-                                val to = TimeUtil.endOfDay(now)
-                                val punches: List<Punch> = vm.repo.forEmployeeBetween(e.id, from, to)
-                                val file = File(exportsDir(), "espelho_${e.name}_${today()}.pdf")
-                                val period = "${TimeUtil.date(from)} - ${TimeUtil.date(to)}"
-                                withContext(Dispatchers.IO) { PdfExport.write(file, e.name, period, punches) }
-                                share(file, "application/pdf")
-                            }
-                        }, Modifier.fillMaxWidth()) { Text(e.name) }
-                    }
+        com.chronopass.app.ui.components.EmployeePickerDialog(
+            title = "PDF — selecionar funcionário",
+            employees = employees,
+            onDismiss = { pdfPicker = false },
+            onPick = { e ->
+                pdfPicker = false
+                scope.launch {
+                    val now = System.currentTimeMillis()
+                    val from = TimeUtil.startOfDay(now - 30L * 86_400_000L)
+                    val to = TimeUtil.endOfDay(now)
+                    val punches: List<Punch> = vm.repo.forEmployeeBetween(e.id, from, to)
+                    val file = File(exportsDir(), "espelho_${e.name}_${today()}.pdf")
+                    val period = "${TimeUtil.date(from)} - ${TimeUtil.date(to)}"
+                    withContext(Dispatchers.IO) { PdfExport.write(file, e.name, period, punches) }
+                    share(file, "application/pdf")
                 }
-            },
-            confirmButton = { TextButton(onClick = { pdfPicker = false }) { Text("Fechar") } }
+            }
         )
     }
 }

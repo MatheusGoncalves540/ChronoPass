@@ -20,6 +20,7 @@ import java.lang.Class;
 import java.lang.Double;
 import java.lang.Exception;
 import java.lang.Float;
+import java.lang.Integer;
 import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
@@ -43,11 +44,11 @@ public final class PunchDao_Impl implements PunchDao {
 
   private final Converters __converters = new Converters();
 
-  private final EntityDeletionOrUpdateAdapter<Punch> __deletionAdapterOfPunch;
-
   private final EntityDeletionOrUpdateAdapter<Punch> __updateAdapterOfPunch;
 
-  private final SharedSQLiteStatement __preparedStmtOfDeleteForEmployee;
+  private final SharedSQLiteStatement __preparedStmtOfSoftDelete;
+
+  private final SharedSQLiteStatement __preparedStmtOfPurgeDeleted;
 
   public PunchDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -55,7 +56,7 @@ public final class PunchDao_Impl implements PunchDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `punch` (`id`,`employeeId`,`timestamp`,`type`,`latitude`,`longitude`,`accuracy`,`photoPath`,`createdAt`,`editedBy`,`editedAt`,`editReason`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `punch` (`id`,`employeeId`,`timestamp`,`type`,`latitude`,`longitude`,`accuracy`,`photoPath`,`createdAt`,`editedBy`,`editedAt`,`editReason`,`deleted`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -102,26 +103,15 @@ public final class PunchDao_Impl implements PunchDao {
         } else {
           statement.bindString(12, entity.getEditReason());
         }
-      }
-    };
-    this.__deletionAdapterOfPunch = new EntityDeletionOrUpdateAdapter<Punch>(__db) {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `punch` WHERE `id` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final Punch entity) {
-        statement.bindLong(1, entity.getId());
+        final int _tmp_1 = entity.getDeleted() ? 1 : 0;
+        statement.bindLong(13, _tmp_1);
       }
     };
     this.__updateAdapterOfPunch = new EntityDeletionOrUpdateAdapter<Punch>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `punch` SET `id` = ?,`employeeId` = ?,`timestamp` = ?,`type` = ?,`latitude` = ?,`longitude` = ?,`accuracy` = ?,`photoPath` = ?,`createdAt` = ?,`editedBy` = ?,`editedAt` = ?,`editReason` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `punch` SET `id` = ?,`employeeId` = ?,`timestamp` = ?,`type` = ?,`latitude` = ?,`longitude` = ?,`accuracy` = ?,`photoPath` = ?,`createdAt` = ?,`editedBy` = ?,`editedAt` = ?,`editReason` = ?,`deleted` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -168,14 +158,24 @@ public final class PunchDao_Impl implements PunchDao {
         } else {
           statement.bindString(12, entity.getEditReason());
         }
-        statement.bindLong(13, entity.getId());
+        final int _tmp_1 = entity.getDeleted() ? 1 : 0;
+        statement.bindLong(13, _tmp_1);
+        statement.bindLong(14, entity.getId());
       }
     };
-    this.__preparedStmtOfDeleteForEmployee = new SharedSQLiteStatement(__db) {
+    this.__preparedStmtOfSoftDelete = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM punch WHERE employeeId = ?";
+        final String _query = "UPDATE punch SET deleted = 1 WHERE id = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfPurgeDeleted = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM punch WHERE deleted = 1";
         return _query;
       }
     };
@@ -192,24 +192,6 @@ public final class PunchDao_Impl implements PunchDao {
     } finally {
       __db.endTransaction();
     }
-  }
-
-  @Override
-  public Object delete(final Punch p, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __deletionAdapterOfPunch.handle(p);
-          __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
-        } finally {
-          __db.endTransaction();
-        }
-      }
-    }, $completion);
   }
 
   @Override
@@ -231,15 +213,14 @@ public final class PunchDao_Impl implements PunchDao {
   }
 
   @Override
-  public Object deleteForEmployee(final long employeeId,
-      final Continuation<? super Unit> $completion) {
+  public Object softDelete(final long id, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteForEmployee.acquire();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfSoftDelete.acquire();
         int _argIndex = 1;
-        _stmt.bindLong(_argIndex, employeeId);
+        _stmt.bindLong(_argIndex, id);
         try {
           __db.beginTransaction();
           try {
@@ -250,7 +231,30 @@ public final class PunchDao_Impl implements PunchDao {
             __db.endTransaction();
           }
         } finally {
-          __preparedStmtOfDeleteForEmployee.release(_stmt);
+          __preparedStmtOfSoftDelete.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object purgeDeleted(final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfPurgeDeleted.acquire();
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfPurgeDeleted.release(_stmt);
         }
       }
     }, $completion);
@@ -258,7 +262,7 @@ public final class PunchDao_Impl implements PunchDao {
 
   @Override
   public Object lastFor(final long employeeId, final Continuation<? super Punch> $completion) {
-    final String _sql = "SELECT * FROM punch WHERE employeeId = ? ORDER BY timestamp DESC LIMIT 1";
+    final String _sql = "SELECT * FROM punch WHERE employeeId = ? AND deleted = 0 ORDER BY timestamp DESC LIMIT 1";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, employeeId);
@@ -281,6 +285,7 @@ public final class PunchDao_Impl implements PunchDao {
           final int _cursorIndexOfEditedBy = CursorUtil.getColumnIndexOrThrow(_cursor, "editedBy");
           final int _cursorIndexOfEditedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "editedAt");
           final int _cursorIndexOfEditReason = CursorUtil.getColumnIndexOrThrow(_cursor, "editReason");
+          final int _cursorIndexOfDeleted = CursorUtil.getColumnIndexOrThrow(_cursor, "deleted");
           final Punch _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -337,7 +342,11 @@ public final class PunchDao_Impl implements PunchDao {
             } else {
               _tmpEditReason = _cursor.getString(_cursorIndexOfEditReason);
             }
-            _result = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason);
+            final boolean _tmpDeleted;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfDeleted);
+            _tmpDeleted = _tmp_1 != 0;
+            _result = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason,_tmpDeleted);
           } else {
             _result = null;
           }
@@ -352,7 +361,7 @@ public final class PunchDao_Impl implements PunchDao {
 
   @Override
   public Flow<List<Punch>> between(final long from, final long to) {
-    final String _sql = "SELECT * FROM punch WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC";
+    final String _sql = "SELECT * FROM punch WHERE deleted = 0 AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, from);
@@ -376,6 +385,7 @@ public final class PunchDao_Impl implements PunchDao {
           final int _cursorIndexOfEditedBy = CursorUtil.getColumnIndexOrThrow(_cursor, "editedBy");
           final int _cursorIndexOfEditedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "editedAt");
           final int _cursorIndexOfEditReason = CursorUtil.getColumnIndexOrThrow(_cursor, "editReason");
+          final int _cursorIndexOfDeleted = CursorUtil.getColumnIndexOrThrow(_cursor, "deleted");
           final List<Punch> _result = new ArrayList<Punch>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Punch _item;
@@ -433,7 +443,11 @@ public final class PunchDao_Impl implements PunchDao {
             } else {
               _tmpEditReason = _cursor.getString(_cursorIndexOfEditReason);
             }
-            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason);
+            final boolean _tmpDeleted;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfDeleted);
+            _tmpDeleted = _tmp_1 != 0;
+            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason,_tmpDeleted);
             _result.add(_item);
           }
           return _result;
@@ -452,7 +466,7 @@ public final class PunchDao_Impl implements PunchDao {
   @Override
   public Object forEmployeeBetween(final long employeeId, final long from, final long to,
       final Continuation<? super List<Punch>> $completion) {
-    final String _sql = "SELECT * FROM punch WHERE employeeId = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp";
+    final String _sql = "SELECT * FROM punch WHERE employeeId = ? AND deleted = 0 AND timestamp BETWEEN ? AND ? ORDER BY timestamp";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 3);
     int _argIndex = 1;
     _statement.bindLong(_argIndex, employeeId);
@@ -479,6 +493,7 @@ public final class PunchDao_Impl implements PunchDao {
           final int _cursorIndexOfEditedBy = CursorUtil.getColumnIndexOrThrow(_cursor, "editedBy");
           final int _cursorIndexOfEditedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "editedAt");
           final int _cursorIndexOfEditReason = CursorUtil.getColumnIndexOrThrow(_cursor, "editReason");
+          final int _cursorIndexOfDeleted = CursorUtil.getColumnIndexOrThrow(_cursor, "deleted");
           final List<Punch> _result = new ArrayList<Punch>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Punch _item;
@@ -536,7 +551,11 @@ public final class PunchDao_Impl implements PunchDao {
             } else {
               _tmpEditReason = _cursor.getString(_cursorIndexOfEditReason);
             }
-            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason);
+            final boolean _tmpDeleted;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfDeleted);
+            _tmpDeleted = _tmp_1 != 0;
+            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason,_tmpDeleted);
             _result.add(_item);
           }
           return _result;
@@ -571,6 +590,7 @@ public final class PunchDao_Impl implements PunchDao {
           final int _cursorIndexOfEditedBy = CursorUtil.getColumnIndexOrThrow(_cursor, "editedBy");
           final int _cursorIndexOfEditedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "editedAt");
           final int _cursorIndexOfEditReason = CursorUtil.getColumnIndexOrThrow(_cursor, "editReason");
+          final int _cursorIndexOfDeleted = CursorUtil.getColumnIndexOrThrow(_cursor, "deleted");
           final List<Punch> _result = new ArrayList<Punch>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Punch _item;
@@ -628,8 +648,137 @@ public final class PunchDao_Impl implements PunchDao {
             } else {
               _tmpEditReason = _cursor.getString(_cursorIndexOfEditReason);
             }
-            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason);
+            final boolean _tmpDeleted;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfDeleted);
+            _tmpDeleted = _tmp_1 != 0;
+            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason,_tmpDeleted);
             _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object allActiveOnce(final Continuation<? super List<Punch>> $completion) {
+    final String _sql = "SELECT * FROM punch WHERE deleted = 0 ORDER BY timestamp";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Punch>>() {
+      @Override
+      @NonNull
+      public List<Punch> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfEmployeeId = CursorUtil.getColumnIndexOrThrow(_cursor, "employeeId");
+          final int _cursorIndexOfTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "timestamp");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final int _cursorIndexOfLatitude = CursorUtil.getColumnIndexOrThrow(_cursor, "latitude");
+          final int _cursorIndexOfLongitude = CursorUtil.getColumnIndexOrThrow(_cursor, "longitude");
+          final int _cursorIndexOfAccuracy = CursorUtil.getColumnIndexOrThrow(_cursor, "accuracy");
+          final int _cursorIndexOfPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "photoPath");
+          final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
+          final int _cursorIndexOfEditedBy = CursorUtil.getColumnIndexOrThrow(_cursor, "editedBy");
+          final int _cursorIndexOfEditedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "editedAt");
+          final int _cursorIndexOfEditReason = CursorUtil.getColumnIndexOrThrow(_cursor, "editReason");
+          final int _cursorIndexOfDeleted = CursorUtil.getColumnIndexOrThrow(_cursor, "deleted");
+          final List<Punch> _result = new ArrayList<Punch>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Punch _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpEmployeeId;
+            _tmpEmployeeId = _cursor.getLong(_cursorIndexOfEmployeeId);
+            final long _tmpTimestamp;
+            _tmpTimestamp = _cursor.getLong(_cursorIndexOfTimestamp);
+            final PunchType _tmpType;
+            final String _tmp;
+            _tmp = _cursor.getString(_cursorIndexOfType);
+            _tmpType = __converters.toType(_tmp);
+            final Double _tmpLatitude;
+            if (_cursor.isNull(_cursorIndexOfLatitude)) {
+              _tmpLatitude = null;
+            } else {
+              _tmpLatitude = _cursor.getDouble(_cursorIndexOfLatitude);
+            }
+            final Double _tmpLongitude;
+            if (_cursor.isNull(_cursorIndexOfLongitude)) {
+              _tmpLongitude = null;
+            } else {
+              _tmpLongitude = _cursor.getDouble(_cursorIndexOfLongitude);
+            }
+            final Float _tmpAccuracy;
+            if (_cursor.isNull(_cursorIndexOfAccuracy)) {
+              _tmpAccuracy = null;
+            } else {
+              _tmpAccuracy = _cursor.getFloat(_cursorIndexOfAccuracy);
+            }
+            final String _tmpPhotoPath;
+            if (_cursor.isNull(_cursorIndexOfPhotoPath)) {
+              _tmpPhotoPath = null;
+            } else {
+              _tmpPhotoPath = _cursor.getString(_cursorIndexOfPhotoPath);
+            }
+            final long _tmpCreatedAt;
+            _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
+            final String _tmpEditedBy;
+            if (_cursor.isNull(_cursorIndexOfEditedBy)) {
+              _tmpEditedBy = null;
+            } else {
+              _tmpEditedBy = _cursor.getString(_cursorIndexOfEditedBy);
+            }
+            final Long _tmpEditedAt;
+            if (_cursor.isNull(_cursorIndexOfEditedAt)) {
+              _tmpEditedAt = null;
+            } else {
+              _tmpEditedAt = _cursor.getLong(_cursorIndexOfEditedAt);
+            }
+            final String _tmpEditReason;
+            if (_cursor.isNull(_cursorIndexOfEditReason)) {
+              _tmpEditReason = null;
+            } else {
+              _tmpEditReason = _cursor.getString(_cursorIndexOfEditReason);
+            }
+            final boolean _tmpDeleted;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfDeleted);
+            _tmpDeleted = _tmp_1 != 0;
+            _item = new Punch(_tmpId,_tmpEmployeeId,_tmpTimestamp,_tmpType,_tmpLatitude,_tmpLongitude,_tmpAccuracy,_tmpPhotoPath,_tmpCreatedAt,_tmpEditedBy,_tmpEditedAt,_tmpEditReason,_tmpDeleted);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object trashCount(final Continuation<? super Integer> $completion) {
+    final String _sql = "SELECT COUNT(*) FROM punch WHERE deleted = 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Integer>() {
+      @Override
+      @NonNull
+      public Integer call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Integer _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmp;
+            _tmp = _cursor.getInt(0);
+            _result = _tmp;
+          } else {
+            _result = 0;
           }
           return _result;
         } finally {
