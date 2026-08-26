@@ -119,7 +119,7 @@ fun RecordsScreen(vm: ChronoViewModel, nav: NavController) {
             onDelete = { vm.deletePunch(p); selected = null })
     }
     if (adding) {
-        AddPunchDialog(activeEmployees, onDismiss = { adding = false }) { p -> vm.updatePunch(p); adding = false }
+        AddPunchDialog(activeEmployees, onDismiss = { adding = false }) { p -> vm.savePunch(p) { adding = false } }
     }
 }
 
