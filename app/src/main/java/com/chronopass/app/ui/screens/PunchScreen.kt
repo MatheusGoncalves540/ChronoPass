@@ -24,7 +24,7 @@ import com.chronopass.app.reports.TimeUtil
 import com.chronopass.app.ui.ChronoViewModel
 import java.io.File
 
-private enum class Step { READY, CAMERA, CONFIRM, DONE }
+private enum class Step { CAPTURE, CONFIRM, DONE }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,11 +32,12 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
     val context = LocalContext.current
     var employee by remember { mutableStateOf<Employee?>(null) }
     var nextType by remember { mutableStateOf(PunchType.IN) }
-    var step by remember { mutableStateOf(Step.READY) }
+    var step by remember { mutableStateOf(Step.CAPTURE) }
     var photo by remember { mutableStateOf<File?>(null) }
     var fix by remember { mutableStateOf<Fix?>(null) }
     var locating by remember { mutableStateOf(true) }
     var timestamp by remember { mutableStateOf(0L) }
+    var hasCameraPermission by remember { mutableStateOf(false) }
     val store by vm.store.collectAsState()
 
     LaunchedEffect(employeeId) {
@@ -45,11 +46,19 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
     }
 
     val cameraPerm = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) step = Step.CAMERA
+        hasCameraPermission = granted
     }
     val locationPerm = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { /* result handled when we read the fix */ }
+
+    LaunchedEffect(Unit) {
+        locationPerm.launch(arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ))
+        cameraPerm.launch(Manifest.permission.CAMERA)
+    }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Registrar ponto") }) }) { pad ->
         Column(
@@ -58,34 +67,32 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
         ) {
             val name = employee?.name ?: "…"
             when (step) {
-                Step.READY -> {
-                    Spacer(Modifier.height(24.dp))
+                Step.CAPTURE -> {
+                    Spacer(Modifier.height(8.dp))
                     Text(name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.height(24.dp))
-                    Text("Próxima marcação:")
-                    Text(
-                        if (nextType == PunchType.IN) "ENTRADA" else "SAÍDA",
-                        style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.weight(1f))
-                    Button(
-                        onClick = {
-                            locationPerm.launch(arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            ))
-                            cameraPerm.launch(Manifest.permission.CAMERA)
-                        },
-                        modifier = Modifier.fillMaxWidth().height(64.dp)
-                    ) { Text("REGISTRAR PONTO", style = MaterialTheme.typography.titleLarge) }
-                }
-
-                Step.CAMERA -> {
-                    Text("Tire uma foto para registrar o ponto.")
-                    CameraCapture(Modifier.fillMaxSize()) { file ->
-                        photo = file
-                        timestamp = System.currentTimeMillis()
-                        step = Step.CONFIRM
+                    Spacer(Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            if (nextType == PunchType.IN) "ENTRADA" else "SAÍDA",
+                            style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        // ponytail: funcionário esqueceu de marcar antes; inverte aqui, gerente ajusta depois se preciso
+                        TextButton(onClick = {
+                            nextType = if (nextType == PunchType.IN) PunchType.OUT else PunchType.IN
+                        }) { Text("INVERTER") }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    if (hasCameraPermission) {
+                        CameraCapture(Modifier.weight(1f).fillMaxWidth()) { file ->
+                            photo = file
+                            timestamp = System.currentTimeMillis()
+                            step = Step.CONFIRM
+                        }
+                    } else {
+                        Spacer(Modifier.weight(1f))
+                        Text("Aguardando permissão da câmera…")
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
 
@@ -134,7 +141,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                     ) { Text(if (locating) "AGUARDE A LOCALIZAÇÃO…" else "CONFIRMAR") }
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(
-                        onClick = { photo?.delete(); photo = null; step = Step.CAMERA },
+                        onClick = { photo?.delete(); photo = null; step = Step.CAPTURE },
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("TIRAR NOVA FOTO") }
                 }
