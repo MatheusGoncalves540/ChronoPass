@@ -1,2 +1,7 @@
 app/build/
 .gradle/
+local.properties
+
+# Chave de assinatura release - NUNCA versionar. Guarde uma cópia fora do repo (backup);
+# sem ela, atualizações futuras do app não terão a mesma assinatura.
+keystore/

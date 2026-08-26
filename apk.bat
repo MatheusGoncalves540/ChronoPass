@@ -1,5 +1,5 @@
 @echo off
-REM Gera o APK avulso em app\build\outputs\apk\debug\app-debug.apk
+REM Gera o APK release (fluido, sem overhead de debug) em app\build\outputs\apk\release\app-release.apk
 cd /d "%~dp0"
-call "%~dp0gradlew.bat" assembleDebug
-echo APK: app\build\outputs\apk\debug\app-debug.apk
+call "%~dp0gradlew.bat" assembleRelease
+echo APK: app\build\outputs\apk\release\app-release.apk

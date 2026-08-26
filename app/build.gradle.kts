@@ -1,9 +1,20 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
 }
+
+// Chave de release própria (keystore/chronopass-release.jks, gitignorada).
+// Sem ela (ex.: clone novo sem o arquivo), cai pra chave de debug e avisa —
+// build continua funcionando, só sem a assinatura "de verdade".
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore/keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasReleaseKey = keystoreProps.getProperty("storeFile") != null
 
 android {
     namespace = "com.chronopass.app"
@@ -17,12 +28,21 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                storeFile = rootProject.file("keystore/${keystoreProps.getProperty("storeFile")}")
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            // ponytail: assina com a chave de debug pra gerar um APK release instalável
-            // sem keystore próprio. O ganho de FPS vem de debuggable=false, não do R8.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKey) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
