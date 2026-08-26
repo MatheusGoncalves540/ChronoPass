@@ -18,6 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.Executor
 
@@ -30,6 +34,7 @@ fun CameraCapture(
     val lifecycleOwner = LocalLifecycleOwner.current
     val imageCapture = remember { ImageCapture.Builder().build() }
     val previewView = remember { PreviewView(context) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         val provider = ProcessCameraProvider.getInstance(context).await()
@@ -45,7 +50,7 @@ fun CameraCapture(
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         AndroidView(factory = { previewView }, modifier = Modifier.weight(1f).fillMaxWidth())
         Button(
-            onClick = { takePhoto(context, imageCapture, ContextCompat.getMainExecutor(context), onPhoto) },
+            onClick = { takePhoto(context, imageCapture, scope, ContextCompat.getMainExecutor(context), onPhoto) },
             modifier = Modifier.fillMaxWidth().padding(16.dp),
         ) { Text("TIRAR FOTO") }
     }
@@ -54,13 +59,19 @@ fun CameraCapture(
 private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture,
+    scope: CoroutineScope,
     executor: Executor,
     onPhoto: (File) -> Unit,
 ) {
-    val file = PhotoStore.newFile(context)
-    val options = ImageCapture.OutputFileOptions.Builder(file).build()
+    val raw = PhotoStore.newRawFile(context)
+    val options = ImageCapture.OutputFileOptions.Builder(raw).build()
     imageCapture.takePicture(options, executor, object : ImageCapture.OnImageSavedCallback {
-        override fun onImageSaved(results: ImageCapture.OutputFileResults) { onPhoto(file) }
+        override fun onImageSaved(results: ImageCapture.OutputFileResults) {
+            scope.launch(Dispatchers.IO) {
+                val compressed = PhotoCompressor.compress(raw)
+                withContext(Dispatchers.Main) { onPhoto(compressed) }
+            }
+        }
         override fun onError(exc: ImageCaptureException) { /* ponytail: retry via button */ }
     })
 }

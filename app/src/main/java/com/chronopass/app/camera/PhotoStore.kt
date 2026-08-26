@@ -10,7 +10,8 @@ object PhotoStore {
     fun dir(context: Context): File =
         File(context.filesDir, "punches").apply { mkdirs() }
 
-    fun newFile(context: Context): File {
+    // ponytail: CameraX only captures straight to JPEG; PhotoCompressor re-encodes this and deletes it.
+    fun newRawFile(context: Context): File {
         val stamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
         return File(dir(context), "$stamp.jpg")
     }

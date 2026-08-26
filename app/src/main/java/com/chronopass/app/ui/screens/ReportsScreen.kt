@@ -183,28 +183,43 @@ fun ReportsScreen(vm: ChronoViewModel, nav: NavController) {
 
     if (datePicker) {
         val state = rememberDateRangePickerState()
-        DatePickerDialog(
+        // DateRangePicker é largo demais para o DatePickerDialog padrão (feito pra
+        // DatePicker simples) e o texto amassa; usamos um Dialog próprio sem a
+        // largura fixa da plataforma, como a própria doc do Material3 recomenda.
+        androidx.compose.ui.window.Dialog(
             onDismissRequest = { datePicker = false },
-            confirmButton = {
-                TextButton(
-                    enabled = state.selectedStartDateMillis != null,
-                    onClick = {
-                        val s = state.selectedStartDateMillis!!
-                        val e = state.selectedEndDateMillis ?: s
-                        customRange = TimeUtil.startOfDay(TimeUtil.fromPickerUtc(s)) to
-                            TimeUtil.endOfDay(TimeUtil.fromPickerUtc(e))
-                        period = ReportPeriod.CUSTOM
-                        datePicker = false
-                    }
-                ) { Text("OK") }
-            },
-            dismissButton = { TextButton(onClick = { datePicker = false }) { Text("Cancelar") } }
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
         ) {
-            DateRangePicker(
-                state = state,
-                modifier = Modifier.height(480.dp),
-                title = { Text("Escolher período", Modifier.padding(start = 16.dp, top = 16.dp)) }
-            )
+            Surface(
+                modifier = Modifier.fillMaxWidth(0.95f).heightIn(max = 560.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                tonalElevation = 6.dp
+            ) {
+                Column {
+                    DateRangePicker(
+                        state = state,
+                        modifier = Modifier.weight(1f),
+                        title = { Text("Escolher período", Modifier.padding(start = 16.dp, top = 16.dp)) }
+                    )
+                    Row(
+                        Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { datePicker = false }) { Text("Cancelar") }
+                        TextButton(
+                            enabled = state.selectedStartDateMillis != null,
+                            onClick = {
+                                val s = state.selectedStartDateMillis!!
+                                val e = state.selectedEndDateMillis ?: s
+                                customRange = TimeUtil.startOfDay(TimeUtil.fromPickerUtc(s)) to
+                                    TimeUtil.endOfDay(TimeUtil.fromPickerUtc(e))
+                                period = ReportPeriod.CUSTOM
+                                datePicker = false
+                            }
+                        ) { Text("OK") }
+                    }
+                }
+            }
         }
     }
 }
