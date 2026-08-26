@@ -12,81 +12,173 @@ import com.chronopass.app.data.entities.PunchType
 import java.io.File
 
 object PdfExport {
-    // Espelho de ponto: cabeçalho, tabela com bordas (Data/Entrada/Saída/Horas)
-    // agregada por dia, total, e blocos de assinatura. PdfDocument, sem lib.
-    // ponytail: uma página; ~31 dias cabem. Multi-página se um período grande exigir.
+    // Espelho de ponto: cabeçalho (repetido em cada página), tabela com bordas
+    // (Data/Entrada/Saída/Almoço/Horas) agregada por dia, total, observações de
+    // alterações (motivo) e blocos de assinatura. PdfDocument, sem lib.
+    // Pagina automaticamente quando o período não cabe em uma página; numera
+    // "Página X de Y" no rodapé só quando o relatório passa de 2 páginas.
     private const val PAGE_W = 595
     private const val PAGE_H = 842
     private const val LEFT = 40f
     private const val RIGHT = 555f
-    private val COLS = floatArrayOf(40f, 175f, 300f, 425f, 555f) // Data | Entrada | Saída | Horas
+    private const val ROW_H = 22f
+    private const val TABLE_TOP = 141f
+    private const val BODY_BOTTOM = 780f // margem de segurança p/ rodapé/assinatura
+    private const val LUNCH_COL = 3 // índice da coluna Almoço em COLS/cells
+    private val COLS = floatArrayOf(40f, 140f, 235f, 330f, 430f, 555f) // Data | Entrada | Saída | Almoço | Horas
+
+    private class Row(val cells: Array<String>?, val bold: Boolean = false, val msg: String? = null, val warnLunch: Boolean = false)
 
     fun write(file: File, employeeName: String, period: String, punches: List<Punch>, logo: Bitmap? = null) {
-        val doc = PdfDocument()
-        val page = doc.startPage(PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, 1).create())
-        val c = page.canvas
+        val label = Paint().apply { textSize = 11f; isFakeBoldText = true; isAntiAlias = true }
+        val cell = Paint().apply { textSize = 11f; isAntiAlias = true }
+        val notePaint = Paint().apply { textSize = 9.5f; isAntiAlias = true; color = Color.DKGRAY }
 
-        // Logo (configurada em build) no topo direito, altura fixa mantendo proporção.
+        // --- linhas da tabela (por dia + total) ---
+        val byDay = punches.groupBy { TimeUtil.startOfDay(it.timestamp) }.toSortedMap()
+        val rows = mutableListOf<Row>()
+        var totalMs = 0L
+        var totalLunchMs = 0L
+        var anyLunchWarn = false
+        if (byDay.isEmpty()) {
+            rows += Row(null, msg = "Nenhuma marcação no período.")
+        } else {
+            for ((day, dayPunches) in byDay) {
+                val ins = dayPunches.filter { it.type == PunchType.IN }.minByOrNull { it.timestamp }
+                val outs = dayPunches.filter { it.type == PunchType.OUT }.maxByOrNull { it.timestamp }
+                val worked = PunchRules.totalWorkedMs(dayPunches)
+                val lunch = PunchRules.lunchMs(dayPunches)
+                val required = PunchRules.requiredLunchMs(worked)
+                val warn = required > 0 && lunch < required
+                totalMs += worked
+                totalLunchMs += lunch
+                if (warn) anyLunchWarn = true
+                rows += Row(
+                    arrayOf(
+                        TimeUtil.date(day),
+                        ins?.let { TimeUtil.hm(it.timestamp) } ?: "—",
+                        outs?.let { TimeUtil.hm(it.timestamp) } ?: "—",
+                        (if (lunch > 0) TimeUtil.formatDuration(lunch) else "—") + (if (warn) "*" else ""),
+                        TimeUtil.formatDuration(worked)
+                    ),
+                    warnLunch = warn
+                )
+            }
+        }
+        rows += Row(arrayOf("", "", "Total", TimeUtil.formatDuration(totalLunchMs), TimeUtil.formatDuration(totalMs)), bold = true)
+
+        // --- observações: motivo das marcações alteradas, com quebra de linha ---
+        val noteLines = punches
+            .filter { it.editReason != null }
+            .sortedBy { it.timestamp }
+            .flatMap { p ->
+                val tipo = if (p.type == PunchType.IN) "Entrada" else "Saída"
+                val text = "${TimeUtil.date(p.timestamp)} ${TimeUtil.hm(p.timestamp)} ($tipo) — " +
+                    "Alterado por ${p.editedBy ?: "?"}: ${p.editReason}"
+                wrapText(text, notePaint, RIGHT - LEFT)
+            }
+
+        val legendLine = if (anyLunchWarn) "* Intervalo de almoço abaixo do mínimo legal (CLT)." else null
+
+        // --- paginação da tabela ---
+        val rowsPerPage = ((BODY_BOTTOM - TABLE_TOP - ROW_H) / ROW_H).toInt().coerceAtLeast(1)
+        val tablePages = rows.chunked(rowsPerPage)
+
+        val legendHeight = if (legendLine == null) 0f else 16f
+        val notesHeight = if (noteLines.isEmpty()) 0f else 20f + noteLines.size * 13f
+        val signatureHeight = 70f
+        val lastPageUsedBottom = TABLE_TOP + ROW_H + tablePages.last().size * ROW_H
+        val trailingFitsLastPage = BODY_BOTTOM - lastPageUsedBottom >= legendHeight + notesHeight + signatureHeight
+        val totalPages = tablePages.size + if (trailingFitsLastPage) 0 else 1
+
+        val doc = PdfDocument()
+        for (pageIndex in 0 until totalPages) {
+            val page = doc.startPage(PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, pageIndex + 1).create())
+            val c = page.canvas
+            drawHeader(c, employeeName, period, logo)
+
+            val isTablePage = pageIndex < tablePages.size
+            var y = TABLE_TOP
+            if (isTablePage) {
+                y = drawTablePage(c, tablePages[pageIndex], label, cell)
+            }
+
+            val isLastPage = pageIndex == totalPages - 1
+            if (isLastPage) {
+                if (legendLine != null) { y += 14f; c.drawText(legendLine, LEFT, y, notePaint); y += 2f }
+                if (noteLines.isNotEmpty()) y = drawNotes(c, y, noteLines, notePaint)
+                drawSignatures(c)
+            }
+
+            if (totalPages > 2) drawPageNumber(c, pageIndex + 1, totalPages)
+
+            doc.finishPage(page)
+        }
+        file.outputStream().use { doc.writeTo(it) }
+        doc.close()
+    }
+
+    private fun drawHeader(c: android.graphics.Canvas, employeeName: String, period: String, logo: Bitmap?) {
         logo?.let { bmp ->
             val h = 46f
             val w = h * bmp.width / bmp.height
             val dst = RectF(RIGHT - w, 30f, RIGHT, 30f + h)
             c.drawBitmap(bmp, Rect(0, 0, bmp.width, bmp.height), dst, Paint().apply { isFilterBitmap = true })
         }
-
         val title = Paint().apply { textSize = 20f; isFakeBoldText = true; isAntiAlias = true }
         val sub = Paint().apply { textSize = 12f; isAntiAlias = true; color = Color.DKGRAY }
-        val label = Paint().apply { textSize = 11f; isFakeBoldText = true; isAntiAlias = true }
         val cell = Paint().apply { textSize = 11f; isAntiAlias = true }
-        val line = Paint().apply { color = Color.parseColor("#BBBBBB"); strokeWidth = 0.8f }
-        val headerBg = Paint().apply { color = Color.parseColor("#EDE7F6") }
 
         var y = 55f
         c.drawText("CHRONOPASS", LEFT, y, title); y += 20f
         c.drawText("Espelho de ponto", LEFT, y, sub); y += 26f
         c.drawText("Funcionário: $employeeName", LEFT, y, cell); y += 16f
-        c.drawText("Período: $period", LEFT, y, cell); y += 24f
+        c.drawText("Período: $period", LEFT, y, cell)
+    }
 
-        // --- tabela ---
-        val rowH = 22f
+    /** Desenha o cabeçalho de colunas + linhas desta página; retorna o y após a tabela. */
+    private fun drawTablePage(c: android.graphics.Canvas, pageRows: List<Row>, label: Paint, cell: Paint): Float {
+        val headerBg = Paint().apply { color = Color.parseColor("#EDE7F6") }
+        val line = Paint().apply { color = Color.parseColor("#BBBBBB"); strokeWidth = 0.8f }
+
+        val warnBg = Paint().apply { color = Color.parseColor("#FBE0E0") }
+        var y = TABLE_TOP
         val tableTop = y
-        // cabeçalho
-        c.drawRect(LEFT, y, RIGHT, y + rowH, headerBg)
-        drawRow(c, y, arrayOf("Data", "Entrada", "Saída", "Horas"), label)
-        y += rowH
+        c.drawRect(LEFT, y, RIGHT, y + ROW_H, headerBg)
+        drawRow(c, y, arrayOf("Data", "Entrada", "Saída", "Almoço", "Horas"), label)
+        y += ROW_H
 
-        val byDay = punches.groupBy { TimeUtil.startOfDay(it.timestamp) }.toSortedMap()
-        var totalMs = 0L
-        for ((day, dayPunches) in byDay) {
-            val ins = dayPunches.filter { it.type == PunchType.IN }.minByOrNull { it.timestamp }
-            val outs = dayPunches.filter { it.type == PunchType.OUT }.maxByOrNull { it.timestamp }
-            val worked = PunchRules.totalWorkedMs(dayPunches)
-            totalMs += worked
-            drawRow(c, y, arrayOf(
-                TimeUtil.date(day),
-                ins?.let { TimeUtil.hm(it.timestamp) } ?: "—",
-                outs?.let { TimeUtil.hm(it.timestamp) } ?: "—",
-                TimeUtil.formatDuration(worked)
-            ), cell)
-            y += rowH
-            if (y > 690f) break // ponytail: single-page cap
-        }
-        if (byDay.isEmpty()) {
-            c.drawText("Nenhuma marcação no período.", LEFT + 6f, y + 15f, cell); y += rowH
+        for (row in pageRows) {
+            if (row.msg != null) {
+                c.drawText(row.msg, LEFT + 6f, y + 15f, cell)
+            } else {
+                if (row.bold) c.drawRect(LEFT, y, RIGHT, y + ROW_H, headerBg)
+                else if (row.warnLunch) c.drawRect(COLS[LUNCH_COL], y, COLS[LUNCH_COL + 1], y + ROW_H, warnBg)
+                drawRow(c, y, row.cells!!, if (row.bold) label else cell)
+            }
+            y += ROW_H
         }
 
-        // total
-        c.drawRect(LEFT, y, RIGHT, y + rowH, headerBg)
-        drawRow(c, y, arrayOf("", "", "Total", TimeUtil.formatDuration(totalMs)), label)
-        y += rowH
-
-        // grade da tabela (bordas)
         val tableBottom = y
         var gy = tableTop
-        while (gy <= tableBottom + 0.1f) { c.drawLine(LEFT, gy, RIGHT, gy, line); gy += rowH }
+        while (gy <= tableBottom + 0.1f) { c.drawLine(LEFT, gy, RIGHT, gy, line); gy += ROW_H }
         for (x in COLS) c.drawLine(x, tableTop, x, tableBottom, line)
+        return y
+    }
 
-        // --- assinaturas ---
+    private fun drawNotes(c: android.graphics.Canvas, top: Float, lines: List<String>, paint: Paint): Float {
+        var y = top + 20f
+        val titlePaint = Paint().apply { textSize = 10.5f; isFakeBoldText = true; isAntiAlias = true }
+        c.drawText("Alterações", LEFT, y, titlePaint)
+        y += 15f
+        for (l in lines) {
+            c.drawText(l, LEFT, y, paint)
+            y += 13f
+        }
+        return y
+    }
+
+    private fun drawSignatures(c: android.graphics.Canvas) {
         val sigY = 770f
         val midGap = 40f
         val colW = (RIGHT - LEFT - midGap) / 2
@@ -96,10 +188,13 @@ object PdfExport {
         val sigLabel = Paint().apply { textSize = 10f; isAntiAlias = true; color = Color.DKGRAY; textAlign = Paint.Align.CENTER }
         c.drawText("Assinatura do funcionário", LEFT + colW / 2, sigY + 14f, sigLabel)
         c.drawText("Assinatura do gerente", RIGHT - colW / 2, sigY + 14f, sigLabel)
+    }
 
-        doc.finishPage(page)
-        file.outputStream().use { doc.writeTo(it) }
-        doc.close()
+    private fun drawPageNumber(c: android.graphics.Canvas, current: Int, total: Int) {
+        val paint = Paint().apply {
+            textSize = 9f; isAntiAlias = true; color = Color.DKGRAY; textAlign = Paint.Align.CENTER
+        }
+        c.drawText("Página $current de $total", (LEFT + RIGHT) / 2, 825f, paint)
     }
 
     private fun drawRow(c: android.graphics.Canvas, top: Float, cells: Array<String>, paint: Paint) {
@@ -107,5 +202,23 @@ object PdfExport {
         for (i in cells.indices) {
             c.drawText(cells[i], COLS[i] + 6f, baseline, paint)
         }
+    }
+
+    /** Quebra de linha simples (greedy) para caber texto dentro de maxWidth. */
+    private fun wrapText(text: String, paint: Paint, maxWidth: Float): List<String> {
+        val words = text.split(" ")
+        val lines = mutableListOf<String>()
+        var current = StringBuilder()
+        for (w in words) {
+            val candidate = if (current.isEmpty()) w else "$current $w"
+            if (paint.measureText(candidate) > maxWidth && current.isNotEmpty()) {
+                lines += current.toString()
+                current = StringBuilder(w)
+            } else {
+                current = StringBuilder(candidate)
+            }
+        }
+        if (current.isNotEmpty()) lines += current.toString()
+        return lines
     }
 }
