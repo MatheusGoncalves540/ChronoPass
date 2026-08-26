@@ -9,28 +9,38 @@ object PunchRules {
     fun next(last: PunchType?): PunchType =
         if (last == PunchType.IN) PunchType.OUT else PunchType.IN
 
-    /** Sums IN→OUT intervals in milliseconds. Punches must be time-ordered. */
+    /**
+     * Ordena e reduz marcações consecutivas do mesmo tipo à primeira da sequência.
+     * Correções manuais podem deixar duas Entradas seguidas sem Saída no meio (ou
+     * vice-versa); sem isso o par seguinte casaria com a marcação errada e o
+     * intervalo entre elas desaparecia dos cálculos sem gerar nenhum aviso.
+     */
+    private fun normalized(punches: List<Punch>): List<Punch> {
+        val sorted = punches.sortedBy { it.timestamp }
+        val result = mutableListOf<Punch>()
+        for (p in sorted) if (result.isEmpty() || result.last().type != p.type) result += p
+        return result
+    }
+
+    /** Sums IN→OUT intervals in milliseconds. Marcação sem par (Entrada pendente
+     * no fim, ou Saída solta no início) é ignorada, não descarta o resto. */
     fun totalWorkedMs(punches: List<Punch>): Long {
+        val n = normalized(punches)
         var total = 0L
-        var pendingIn: Long? = null
-        for (p in punches.sortedBy { it.timestamp }) {
-            if (p.type == PunchType.IN) pendingIn = p.timestamp
-            else pendingIn?.let { total += p.timestamp - it; pendingIn = null }
+        for (i in 0 until n.size - 1) {
+            if (n[i].type == PunchType.IN && n[i + 1].type == PunchType.OUT) total += n[i + 1].timestamp - n[i].timestamp
         }
         return total
     }
 
-    /**
-     * Soma de todos os intervalos (almoço + pausas) dentro de um único dia:
-     * o tempo entre a primeira Entrada e a última Saída que não é trabalhado.
-     * Exige que o dia comece com Entrada e termine com Saída (dia "fechado");
-     * caso contrário não há como distinguir pausa de jornada ainda em curso.
-     */
+    /** Soma dos intervalos Saída→Entrada (almoço/pausas) dentro de um dia. */
     fun lunchMs(dayPunches: List<Punch>): Long {
-        val sorted = dayPunches.sortedBy { it.timestamp }
-        if (sorted.size < 2 || sorted.first().type != PunchType.IN || sorted.last().type != PunchType.OUT) return 0L
-        val span = sorted.last().timestamp - sorted.first().timestamp
-        return (span - totalWorkedMs(sorted)).coerceAtLeast(0L)
+        val n = normalized(dayPunches)
+        var total = 0L
+        for (i in 0 until n.size - 1) {
+            if (n[i].type == PunchType.OUT && n[i + 1].type == PunchType.IN) total += n[i + 1].timestamp - n[i].timestamp
+        }
+        return total
     }
 
     /** Intervalo mínimo legal (CLT): 1h para jornada >6h, 30min para 4-6h, nenhum abaixo disso. */

@@ -47,6 +47,21 @@ class PunchRulesTest {
         assertEquals(0L, PunchRules.lunchMs(p))
     }
 
+    @Test fun handlesDuplicateAdjacentPunch_withoutLosingTheGap() {
+        // Dia começando com Saída solta + Entrada duplicada (edição manual bagunçada):
+        // 12:09 Saída, 13:09 Entrada, 14:08 Entrada, 22:08 Saída.
+        val p = listOf(
+            Punch(employeeId = 1, timestamp = h(12, 9), type = PunchType.OUT),
+            Punch(employeeId = 1, timestamp = h(13, 9), type = PunchType.IN),
+            Punch(employeeId = 1, timestamp = h(14, 8), type = PunchType.IN),
+            Punch(employeeId = 1, timestamp = h(22, 8), type = PunchType.OUT),
+        )
+        assertEquals(60 * 60_000L, PunchRules.lunchMs(p)) // 12:09 -> 13:09
+        assertEquals(h(22, 8) - h(13, 9), PunchRules.totalWorkedMs(p)) // 13:09 -> 22:08
+    }
+
+    private fun h(hour: Int, min: Int) = (hour * 3_600_000L) + (min * 60_000L)
+
     @Test fun requiredLunch_thresholds() {
         val h = 3_600_000L
         assertEquals(0L, PunchRules.requiredLunchMs(4 * h))
