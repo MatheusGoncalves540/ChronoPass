@@ -18,6 +18,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
 import com.chronopass.app.location.getCurrentFix
 import com.chronopass.app.ui.ChronoViewModel
+import com.chronopass.app.update.UpdateAvailableDialog
+import com.chronopass.app.update.UpdateChecker
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +45,8 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
             .getOrNull() ?: "—"
     }
+    var checkingUpdate by remember { mutableStateOf(false) }
+    var manualUpdateInfo by remember { mutableStateOf<UpdateChecker.UpdateInfo?>(null) }
 
     val locPerm = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -108,10 +112,21 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
             Text("Ponto eletrônico simples: registro de entrada/saída por funcionário, com localização, foto e relatórios em PDF.",
                 style = MaterialTheme.typography.bodySmall)
             Text("Versão $versionName", style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(onClick = {
+                scope.launch {
+                    checkingUpdate = true
+                    val result = UpdateChecker.checkForUpdate(versionName)
+                    checkingUpdate = false
+                    if (result != null) manualUpdateInfo = result
+                    else msg = "Você já está na versão mais recente."
+                }
+            }) { Text(if (checkingUpdate) "Verificando…" else "Verificar atualizações") }
 
             msg?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         }
     }
+
+    manualUpdateInfo?.let { info -> UpdateAvailableDialog(info) { manualUpdateInfo = null } }
 
     if (confirmTrash) {
         AlertDialog(

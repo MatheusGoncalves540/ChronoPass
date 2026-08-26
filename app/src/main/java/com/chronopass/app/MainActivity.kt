@@ -7,7 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +23,8 @@ import androidx.navigation.navArgument
 import com.chronopass.app.ui.ChronoViewModel
 import com.chronopass.app.ui.screens.*
 import com.chronopass.app.ui.theme.ChronoTheme
+import com.chronopass.app.update.UpdateAvailableDialog
+import com.chronopass.app.update.UpdateChecker
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +37,13 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val nav = rememberNavController()
     val vm: ChronoViewModel = viewModel()
+    val context = LocalContext.current
+    var updateInfo by remember { mutableStateOf<UpdateChecker.UpdateInfo?>(null) }
+
+    LaunchedEffect(Unit) {
+        val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "0.0.0"
+        updateInfo = UpdateChecker.checkForUpdate(versionName)
+    }
 
     NavHost(nav, startDestination = "home") {
         composable("home") { HomeScreen(vm, nav) }
@@ -44,4 +59,6 @@ fun App() {
         composable("reports") { ReportsScreen(vm, nav) }
         composable("settings") { SettingsScreen(vm, nav) }
     }
+
+    updateInfo?.let { info -> UpdateAvailableDialog(info) { updateInfo = null } }
 }

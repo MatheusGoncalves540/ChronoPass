@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    branches: [production]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - id: version
+        run: |
+          prev_tag=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+          if [ -z "$prev_tag" ]; then prev_tag="v1.0.0"; range=""
+          else range="$prev_tag..HEAD"; fi
+          msgs=$(git log $range --pretty=%B)
+          if echo "$msgs" | grep -qi '\[major\]'; then bump=major
+          elif echo "$msgs" | grep -qi '\[minor\]'; then bump=minor
+          else bump=patch; fi
+          IFS='.' read -r maj min pat <<< "${prev_tag#v}"
+          case "$bump" in
+            major) maj=$((maj+1)); min=0; pat=0 ;;
+            minor) min=$((min+1)); pat=0 ;;
+            patch) pat=$((pat+1)) ;;
+          esac
+          cur_code=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' app/build.gradle.kts)
+          echo "new_version=$maj.$min.$pat" >> "$GITHUB_OUTPUT"
+          echo "new_code=$((cur_code+1))" >> "$GITHUB_OUTPUT"
+          echo "tag=v$maj.$min.$pat" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version in build.gradle.kts
+        run: |
+          sed -i "s/versionCode = [0-9]\+/versionCode = ${{ steps.version.outputs.new_code }}/" app/build.gradle.kts
+          sed -i "s/versionName = \"[^\"]*\"/versionName = \"${{ steps.version.outputs.new_version }}\"/" app/build.gradle.kts
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+
+      - name: Restore release keystore
+        run: |
+          mkdir -p keystore
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > keystore/chronopass-release.jks
+          cat > keystore/keystore.properties <<EOF
+          storeFile=chronopass-release.jks
+          storePassword=${{ secrets.RELEASE_STORE_PASSWORD }}
+          keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
+          keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
+          EOF
+
+      - run: chmod +x gradlew
+
+      - run: ./gradlew assembleRelease
+
+      - name: Commit version bump and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/build.gradle.kts
+          git commit -m "chore: bump version to ${{ steps.version.outputs.tag }} [skip ci]"
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin HEAD:production
+          git push origin ${{ steps.version.outputs.tag }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ steps.version.outputs.tag }} \
+            app/build/outputs/apk/release/app-release.apk \
+            --title "${{ steps.version.outputs.tag }}" --generate-notes
