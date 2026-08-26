@@ -19,6 +19,22 @@ object TimeUtil {
 
     fun endOfDay(ts: Long): Long = startOfDay(ts) + 24L * 60 * 60 * 1000 - 1
 
+    fun addDays(ts: Long, n: Int): Long = cal(ts).apply { add(Calendar.DAY_OF_MONTH, n) }.timeInMillis
+    fun addMonths(ts: Long, n: Int): Long = cal(ts).apply { add(Calendar.MONTH, n) }.timeInMillis
+
+    fun startOfMonth(ts: Long): Long =
+        startOfDay(cal(ts).apply { set(Calendar.DAY_OF_MONTH, 1) }.timeInMillis)
+
+    fun endOfMonth(ts: Long): Long =
+        endOfDay(cal(ts).apply { set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH)) }.timeInMillis)
+
+    // O DateRangePicker do Material3 devolve meia-noite UTC; converte para o
+    // mesmo dia no fuso local antes de virar intervalo.
+    fun fromPickerUtc(utc: Long): Long = utc - TimeZone.getDefault().getOffset(utc)
+
+    // yyyy-MM-dd para nome de arquivo (ordenavel, sem barra).
+    fun fileDate(ts: Long): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(ts))
+
     fun formatDuration(ms: Long): String {
         val totalMin = ms / 60000
         return "%02d:%02d".format(totalMin / 60, totalMin % 60)

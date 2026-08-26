@@ -32,6 +32,15 @@ O Studio gera o `gradle-wrapper.jar`. Ou, com Gradle instalado: `gradle wrapper 
 | CSV / PDF | `reports/CsvExport.kt`, `reports/PdfExport.kt` |
 | Backup / Restaurar (zip) | `backup/BackupManager.kt`, `ReportsScreen.kt` |
 
+## Imagens trocáveis (build-time)
+
+| Imagem | Arquivo | Onde aparece |
+|---|---|---|
+| Logo da loja | `app/src/main/assets/logo.png` | Topo da tela inicial, cabeçalho do PDF |
+| Ícone do app | `app/src/main/res/drawable-nodpi/ic_launcher_foreground.png` | Ícone na área de trabalho do Android |
+
+Troque o arquivo e recompile. Instruções detalhadas (formato, margens) em `app/src/main/assets/LEIA-ME.txt`.
+
 ## Fora de escopo (ver PLANO-FUTURO.md)
 
 Reconhecimento facial, servidor, sincronização, múltiplas lojas, folha de ponto — deliberadamente não implementados.

@@ -37,6 +37,11 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
     var confirmTrash by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { vm.loadTrashCount { trashCount = it } }
 
+    val versionName = remember {
+        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
+            .getOrNull() ?: "—"
+    }
+
     val locPerm = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { granted ->
@@ -91,6 +96,13 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
             ) { Text(if (trashCount > 0) "LIMPAR LIXEIRA ($trashCount)" else "LIXEIRA VAZIA") }
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            Text("Sobre o app", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+            Text("ChronoPass", style = MaterialTheme.typography.titleLarge)
+            Text("Ponto eletrônico simples: registro de entrada/saída por funcionário, com localização, foto e relatórios em PDF.",
+                style = MaterialTheme.typography.bodySmall)
+            Text("Versão $versionName", style = MaterialTheme.typography.bodySmall)
 
             msg?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         }

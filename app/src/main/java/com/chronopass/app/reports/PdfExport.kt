@@ -1,7 +1,10 @@
 package com.chronopass.app.reports
 
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import com.chronopass.app.data.PunchRules
 import com.chronopass.app.data.entities.Punch
@@ -18,10 +21,18 @@ object PdfExport {
     private const val RIGHT = 555f
     private val COLS = floatArrayOf(40f, 175f, 300f, 425f, 555f) // Data | Entrada | Saída | Horas
 
-    fun write(file: File, employeeName: String, period: String, punches: List<Punch>) {
+    fun write(file: File, employeeName: String, period: String, punches: List<Punch>, logo: Bitmap? = null) {
         val doc = PdfDocument()
         val page = doc.startPage(PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, 1).create())
         val c = page.canvas
+
+        // Logo (configurada em build) no topo direito, altura fixa mantendo proporção.
+        logo?.let { bmp ->
+            val h = 46f
+            val w = h * bmp.width / bmp.height
+            val dst = RectF(RIGHT - w, 30f, RIGHT, 30f + h)
+            c.drawBitmap(bmp, Rect(0, 0, bmp.width, bmp.height), dst, Paint().apply { isFilterBitmap = true })
+        }
 
         val title = Paint().apply { textSize = 20f; isFakeBoldText = true; isAntiAlias = true }
         val sub = Paint().apply { textSize = 12f; isAntiAlias = true; color = Color.DKGRAY }

@@ -1,0 +1,26 @@
+LOGO DA LOJA (configurada em tempo de build)
+
+Coloque o arquivo da sua logo aqui com o nome exato:
+
+    logo.png
+
+Depois recompile o app (dev.bat / apk.bat / gradlew assembleRelease).
+
+- A logo aparece no topo da tela inicial e no cabeçalho do PDF (espelho de ponto).
+- Formato: PNG (fundo transparente fica melhor). Proporção livre; é redimensionada pela altura.
+- Se remover este logo.png, o app simplesmente não mostra logo (sem erro).
+
+ÍCONE DO APP (o que aparece na área de trabalho do Android)
+
+É um arquivo separado da logo acima. Para trocar:
+
+    app/src/main/res/drawable-nodpi/ic_launcher_foreground.png
+
+- Formato: PNG com fundo transparente, quadrado (ex.: 432x432).
+- Deixe a imagem centralizada com uma margem de ~25% ao redor: o Android
+  recorta esse ícone em círculo/quadrado arredondado/etc. dependendo do
+  celular, e o que estiver fora da margem pode ser cortado.
+- A cor de fundo (atrás da imagem) fica em
+  app/src/main/res/values/ic_launcher_background.xml — troque o código de
+  cor lá se quiser.
+- Depois recompile o app (dev.bat / apk.bat / gradlew assembleRelease).
