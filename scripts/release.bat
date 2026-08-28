@@ -58,8 +58,13 @@ if !CUR_CODE! GTR !NEW_CODE! set /a "NEW_CODE=CUR_CODE+1"
 echo   %PREV_TAG% (versionCode %PREV_CODE%) -^> %NEW_TAG% (versionCode %NEW_CODE%) [bump %BUMP%]
 
 echo [3/6] Aplicando bump em app\build.gradle.kts...
-powershell -NoProfile -Command "$p='app\build.gradle.kts';$t=[IO.File]::ReadAllText($p);$t=$t -replace 'versionCode = \d+','versionCode = %NEW_CODE%' -replace 'versionName = ""[^""]*""','versionName = ""%NEW_VERSION%""';[IO.File]::WriteAllText($p,$t)"
+powershell -NoProfile -Command "$p='app\build.gradle.kts';$t=[IO.File]::ReadAllText($p);$t=$t -replace 'versionCode = \d+','versionCode = %NEW_CODE%' -replace ('versionName = \x22[\d.]*\x22'),('versionName = '+[char]34+'%NEW_VERSION%'+[char]34);[IO.File]::WriteAllText($p,$t)"
 if errorlevel 1 ( echo   Falha ao atualizar a versao. & exit /b 1 )
+for /f "tokens=3" %%v in ('findstr /r "versionName" app\build.gradle.kts') do set "GOT_VERSION=%%v"
+set "GOT_VERSION=!GOT_VERSION:"=!"
+for /f "tokens=3" %%c in ('findstr /r "versionCode" app\build.gradle.kts') do set "GOT_CODE=%%c"
+if not "!GOT_VERSION!"=="%NEW_VERSION%" ( echo   Bump falhou: versionName=!GOT_VERSION!. & exit /b 1 )
+if not "!GOT_CODE!"=="%NEW_CODE%" ( echo   Bump falhou: versionCode=!GOT_CODE!. & exit /b 1 )
 
 echo [4/6] Testes JVM...
 call "%GRADLEW%" test
