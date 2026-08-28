@@ -68,18 +68,18 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_mainactivity",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "mainactivity.kt"
     },
     {
       "label": "MainActivity",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L29",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "mainactivity"
     },
     {
@@ -90,18 +90,18 @@
       "_origin": "ast",
       "id": "componentactivity",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "componentactivity"
     },
     {
       "label": ".onCreate()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L30",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity_oncreate",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": ".oncreate()"
     },
     {
@@ -112,18 +112,18 @@
       "_origin": "ast",
       "id": "bundle",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "bundle"
     },
     {
       "label": "App()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L36",
+      "source_location": "L50",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_mainactivity_app",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "app()"
     },
     {
@@ -552,7 +552,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": "employeedao"
     },
     {
@@ -563,7 +563,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_all",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".all()"
     },
     {
@@ -574,7 +574,7 @@
       "_origin": "ast",
       "id": "flow",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": "flow"
     },
     {
@@ -585,7 +585,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_activelist",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".activelist()"
     },
     {
@@ -596,7 +596,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_allincludingdeleted",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".allincludingdeleted()"
     },
     {
@@ -607,7 +607,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_byid",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".byid()"
     },
     {
@@ -618,7 +618,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_allonce",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".allonce()"
     },
     {
@@ -629,7 +629,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_trashcount",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".trashcount()"
     },
     {
@@ -640,7 +640,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_softdelete",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".softdelete()"
     },
     {
@@ -651,7 +651,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_purgedeleted",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".purgedeleted()"
     },
     {
@@ -662,7 +662,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_insert",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".insert()"
     },
     {
@@ -673,7 +673,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_dao_daos_employeedao_update",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".update()"
     },
     {
@@ -1113,7 +1113,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_entities_entities_employee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": "employee"
     },
     {
@@ -1234,7 +1234,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_repo_chronorepository_chronorepository_addemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".addemployee()"
     },
     {
@@ -1245,7 +1245,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_repo_chronorepository_chronorepository_updateemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".updateemployee()"
     },
     {
@@ -1256,7 +1256,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_data_repo_chronorepository_chronorepository_deleteemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".deleteemployee()"
     },
     {
@@ -2047,7 +2047,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": "chronoviewmodel.kt"
     },
@@ -2058,7 +2058,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": "chronoviewmodel"
     },
@@ -2069,7 +2069,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "androidviewmodel",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": "androidviewmodel"
     },
@@ -2080,7 +2080,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "stateflow",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": "stateflow"
     },
@@ -2102,7 +2102,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_savepunch",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".savepunch()"
     },
@@ -2114,7 +2114,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_addemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".addemployee()"
     },
     {
@@ -2125,7 +2125,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_updateemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".updateemployee()"
     },
     {
@@ -2136,7 +2136,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_deleteemployee",
       "community": 5,
-      "community_name": "Employee",
+      "community_name": "ChronoViewModel",
       "norm_label": ".deleteemployee()"
     },
     {
@@ -2146,7 +2146,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_updatepunch",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".updatepunch()"
     },
@@ -2157,7 +2157,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_deletepunch",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".deletepunch()"
     },
@@ -2179,7 +2179,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_adminpassword",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".adminpassword()"
     },
@@ -2190,7 +2190,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_setadminpassword",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".setadminpassword()"
     },
@@ -2201,7 +2201,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_checkadminpassword",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".checkadminpassword()"
     },
@@ -2212,7 +2212,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_loadtrashcount",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".loadtrashcount()"
     },
@@ -2223,7 +2223,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_chronoviewmodel_chronoviewmodel_emptytrash",
-      "community": 0,
+      "community": 5,
       "community_name": "ChronoViewModel",
       "norm_label": ".emptytrash()"
     },
@@ -2234,8 +2234,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_components_employeepicker",
-      "community": 5,
-      "community_name": "Employee",
+      "community": 16,
+      "community_name": "PdfExport",
       "norm_label": "employeepicker.kt"
     },
     {
@@ -2245,8 +2245,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_components_employeepicker_employeepickerdialog",
-      "community": 5,
-      "community_name": "Employee",
+      "community": 16,
+      "community_name": "PdfExport",
       "norm_label": "employeepickerdialog()"
     },
     {
@@ -2334,7 +2334,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_adminscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "adminscreen.kt"
     },
     {
@@ -2345,7 +2345,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_adminscreen_adminscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "adminscreen()"
     },
     {
@@ -2356,7 +2356,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_adminscreen_kt_navcontroller",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "navcontroller"
     },
     {
@@ -2642,7 +2642,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_reportsscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "reportsscreen.kt"
     },
     {
@@ -2653,7 +2653,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_reportsscreen_reportsscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "reportsscreen()"
     },
     {
@@ -2664,7 +2664,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_reportsscreen_kt_navcontroller",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "navcontroller"
     },
     {
@@ -2675,7 +2675,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_reportsscreen_today",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "today()"
     },
     {
@@ -2686,7 +2686,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_reportsscreen_slug",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "slug()"
     },
     {
@@ -2697,7 +2697,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "settingsscreen.kt"
     },
     {
@@ -2708,7 +2708,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen_settingsscreen",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "settingsscreen()"
     },
     {
@@ -2719,7 +2719,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen_kt_navcontroller",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "navcontroller"
     },
     {
@@ -2730,7 +2730,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_theme_theme",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "theme.kt"
     },
     {
@@ -2741,7 +2741,7 @@
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_ui_theme_theme_chronotheme",
       "community": 0,
-      "community_name": "ChronoViewModel",
+      "community_name": "App",
       "norm_label": "chronotheme()"
     },
     {
@@ -2759,7 +2759,7 @@
       "label": "UpdateChecker",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L25",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
       "community": 10,
@@ -2770,7 +2770,7 @@
       "label": "UpdateInfo",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L26",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updateinfo",
       "community": 10,
@@ -2781,7 +2781,7 @@
       "label": ".checkForUpdate()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L28",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_checkforupdate",
       "community": 10,
@@ -2792,7 +2792,7 @@
       "label": ".isNewer()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L53",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_isnewer",
       "community": 10,
@@ -2803,7 +2803,7 @@
       "label": ".canInstallUnknownApps()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L64",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_caninstallunknownapps",
       "community": 10,
@@ -2825,7 +2825,7 @@
       "label": ".unknownAppsSettingsIntent()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L67",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_unknownappssettingsintent",
       "community": 10,
@@ -2844,21 +2844,98 @@
       "norm_label": "intent"
     },
     {
-      "label": ".downloadAndInstall()",
+      "label": ".apkFile()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L71",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
       "community": 10,
       "community_name": "UpdateChecker",
-      "norm_label": ".downloadandinstall()"
+      "norm_label": ".apkfile()"
+    },
+    {
+      "label": ".downloadedApk()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L93",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": ".downloadedapk()"
+    },
+    {
+      "label": ".downloadApk()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L101",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadapk",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": ".downloadapk()"
+    },
+    {
+      "label": ".installApk()",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L147",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_installapk",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": ".installapk()"
+    },
+    {
+      "label": "UpdatePhase",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L159",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": "updatephase"
+    },
+    {
+      "label": "Ask",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L160",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_ask",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": "ask"
+    },
+    {
+      "label": "Downloading",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L161",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_downloading",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": "downloading"
+    },
+    {
+      "label": "NeedPermission",
+      "file_type": "code",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L162",
+      "_origin": "ast",
+      "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_needpermission",
+      "community": 10,
+      "community_name": "UpdateChecker",
+      "norm_label": "needpermission"
     },
     {
       "label": "UpdateAvailableDialog()",
       "file_type": "code",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L104",
+      "source_location": "L165",
       "_origin": "ast",
       "id": "app_src_main_java_com_chronopass_app_update_updatechecker_updateavailabledialog",
       "community": 10,
@@ -3084,6 +3161,83 @@
       "community": 15,
       "community_name": "ReportPeriodTest",
       "norm_label": ".rangesareorderedandcovertheday()"
+    },
+    {
+      "label": "UpdateCheckerTest.kt",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": "updatecheckertest.kt"
+    },
+    {
+      "label": "UpdateCheckerTest",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": "updatecheckertest"
+    },
+    {
+      "label": ".isNewer_detectsHigherMinor()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_detectshigherminor",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": ".isnewer_detectshigherminor()"
+    },
+    {
+      "label": ".isNewer_same_isNotNewer()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_same_isnotnewer",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": ".isnewer_same_isnotnewer()"
+    },
+    {
+      "label": ".isNewer_older_isNotNewer()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_older_isnotnewer",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": ".isnewer_older_isnotnewer()"
+    },
+    {
+      "label": ".isNewer_extraSegment_wins()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_extrasegment_wins",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": ".isnewer_extrasegment_wins()"
+    },
+    {
+      "label": ".isNewer_missingSegment_isEqual()",
+      "file_type": "code",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_missingsegment_isequal",
+      "community": 45,
+      "community_name": "UpdateCheckerTest",
+      "norm_label": ".isnewer_missingsegment_isequal()"
     },
     {
       "label": "build.gradle.kts",
@@ -4597,7 +4751,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L36",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity",
@@ -4608,7 +4762,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L29",
+      "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity",
@@ -4619,7 +4773,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L30",
+      "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity",
@@ -4630,7 +4784,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L29",
+      "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity",
@@ -4642,7 +4796,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L32",
+      "source_location": "L43",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity_oncreate",
@@ -4655,7 +4809,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L32",
+      "source_location": "L41",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_mainactivity_oncreate",
@@ -4665,7 +4819,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L30",
+      "source_location": "L38",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -4679,7 +4833,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L56",
+      "source_location": "L96",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4691,7 +4845,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L57",
+      "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4703,7 +4857,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L49",
+      "source_location": "L91",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4715,7 +4869,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L54",
+      "source_location": "L95",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4727,7 +4881,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L58",
+      "source_location": "L98",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4739,7 +4893,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L59",
+      "source_location": "L99",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4751,7 +4905,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L60",
+      "source_location": "L100",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -4763,7 +4917,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/MainActivity.kt",
-      "source_location": "L63",
+      "source_location": "L104",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_mainactivity_app",
@@ -5091,7 +5245,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L35",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_checkforupdate",
@@ -7321,7 +7475,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/ui/screens/SettingsScreen.kt",
-      "source_location": "L56",
+      "source_location": "L59",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen_settingsscreen",
@@ -7702,7 +7856,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/ui/screens/SettingsScreen.kt",
-      "source_location": "L77",
+      "source_location": "L113",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen_settingsscreen",
@@ -9176,7 +9330,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/src/main/java/com/chronopass/app/ui/screens/SettingsScreen.kt",
-      "source_location": "L129",
+      "source_location": "L211",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_ui_screens_settingsscreen_settingsscreen",
@@ -9197,7 +9351,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L104",
+      "source_location": "L165",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker",
@@ -9208,7 +9362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L25",
+      "source_location": "L36",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker",
@@ -9216,10 +9370,21 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L159",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L104",
+      "source_location": "L165",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -9231,7 +9396,18 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L64",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
@@ -9242,7 +9418,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L28",
+      "source_location": "L40",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
@@ -9253,18 +9429,40 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L71",
+      "source_location": "L101",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
-      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadapk",
       "confidence_score": 1.0
     },
     {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L53",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_installapk",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L69",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
@@ -9275,7 +9473,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L67",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
@@ -9286,7 +9484,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L26",
+      "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker",
@@ -9295,10 +9493,22 @@
     },
     {
       "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L89",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updateinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L28",
+      "source_location": "L40",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_checkforupdate",
@@ -9309,11 +9519,23 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L71",
+      "source_location": "L101",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
-      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updateinfo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
       "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updateinfo",
       "confidence_score": 1.0
     },
@@ -9322,7 +9544,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L47",
+      "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_checkforupdate",
@@ -9334,7 +9556,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L112",
+      "source_location": "L182",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updateavailabledialog",
@@ -9345,7 +9567,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L64",
+      "source_location": "L80",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -9357,11 +9579,11 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L71",
+      "source_location": "L89",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
-      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
       "target": "app_src_main_java_com_chronopass_app_update_updatechecker_kt_context",
       "confidence_score": 1.0
     },
@@ -9369,7 +9591,43 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L67",
+      "source_location": "L101",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_kt_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_kt_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L147",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_installapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_kt_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L83",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -9382,7 +9640,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L127",
+      "source_location": "L279",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updateavailabledialog",
@@ -9394,7 +9652,7 @@
       "context": "return_type",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L67",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_unknownappssettingsintent",
@@ -9406,10 +9664,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L95",
+      "source_location": "L150",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_installapk",
       "target": "intent",
       "confidence_score": 1.0
     },
@@ -9418,11 +9676,80 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
-      "source_location": "L113",
+      "source_location": "L139",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L94",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_apkfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L184",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updateavailabledialog",
-      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadandinstall",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_downloadedapk",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updateavailabledialog",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatechecker_installapk",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L160",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_ask",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L161",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_downloading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "case_of",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt",
+      "source_location": "L162",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase",
+      "target": "app_src_main_java_com_chronopass_app_update_updatechecker_updatephase_needpermission",
       "confidence_score": 1.0
     },
     {
@@ -9681,6 +10008,72 @@
       "_origin": "ast",
       "source": "app_src_test_java_com_chronopass_app_reportperiodtest_reportperiodtest_thismonth_startsonday1_endstoday",
       "target": "app_src_test_java_com_chronopass_app_reportperiodtest_reportperiodtest_day",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_detectshigherminor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_extrasegment_wins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_missingsegment_isequal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_older_isnotnewer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest",
+      "target": "app_src_test_java_com_chronopass_app_updatecheckertest_updatecheckertest_isnewer_same_isnotnewer",
       "confidence_score": 1.0
     },
     {
@@ -10709,5 +11102,5 @@
       "source_file": "PLANO-FUTURO.md"
     }
   ],
-  "built_at_commit": "35bef04bf378b55f3d48369e1dd372a41ff6d159"
+  "built_at_commit": "bb7999ef7cc5ae1364d9c8b5da0526b434d59fc6"
 }

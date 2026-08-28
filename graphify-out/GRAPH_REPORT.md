@@ -1,26 +1,26 @@
 # Graph Report - ChronoPass  (2026-08-28)
 
 ## Corpus Check
-- 39 files · ~21,978 words
+- 40 files · ~22,394 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 385 nodes · 539 edges · 45 communities (22 shown, 23 thin omitted)
+- 399 nodes · 560 edges · 46 communities (22 shown, 24 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `35bef04b`
+- Built from commit: `bb7999ef`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- ChronoViewModel
+- App
 - Store
 - Tabela "Onde está cada item do MVP"
 - Punch
 - Pipeline de Reconhecimento Facial
-- Employee
+- ChronoViewModel
 - punch Entity (Simple)
 - ChronoRepository
 - PunchScreen
@@ -56,6 +56,7 @@
 - AGENTS.md
 - PhotoCompressor
 - CLAUDE.md
+- UpdateCheckerTest
 
 ## God Nodes (most connected - your core abstractions)
 1. `Punch` - 29 edges
@@ -89,11 +90,11 @@
 - **Reporting & Backup Data Portability Flow** — plano_relatorios, plano_exportacao_csv, plano_exportacao_pdf, plano_backup_zip [INFERRED 0.75]
 - **Arquitetura de Criptografia** — plano_futuro_db_encryption, plano_futuro_photo_encryption, plano_futuro_admin_password_argon2id, plano_futuro_backup_encryption_cpbk, plano_futuro_login_attempt_backoff [EXTRACTED 1.00]
 
-## Communities (45 total, 23 thin omitted)
+## Communities (46 total, 24 thin omitted)
 
-### Community 0 - "ChronoViewModel"
-Cohesion: 0.08
-Nodes (16): AndroidViewModel, App(), MainActivity, ChronoViewModel, AdminScreen(), NavController, NavController, ReportsScreen() (+8 more)
+### Community 0 - "App"
+Cohesion: 0.12
+Nodes (13): App(), MainActivity, AdminScreen(), NavController, NavController, ReportsScreen(), slug(), today() (+5 more)
 
 ### Community 1 - "Store"
 Cohesion: 0.07
@@ -111,9 +112,9 @@ Nodes (5): PunchDao, Punch, PunchRules, CsvExport, PunchRulesTest
 Cohesion: 0.14
 Nodes (21): LEIA-ME.txt (Guia de Imagens), Configuração do Ícone do App, ic_launcher_background.xml (Cor de Fundo do Ícone), Configuração da Logo (logo.png), Scripts de Rebuild (dev.bat/apk.bat/gradlew assembleRelease), Senha do Gerente (Argon2id), CameraX, admin_credential Entity (+13 more)
 
-### Community 5 - "Employee"
-Cohesion: 0.13
-Nodes (4): EmployeeDao, Employee, EmployeePickerDialog(), Flow
+### Community 5 - "ChronoViewModel"
+Cohesion: 0.09
+Nodes (6): AndroidViewModel, EmployeeDao, Employee, ChronoViewModel, Flow, StateFlow
 
 ### Community 6 - "punch Entity (Simple)"
 Cohesion: 0.10
@@ -124,8 +125,8 @@ Cohesion: 0.16
 Nodes (17): awaitOrNull(), distanceMeters(), Fix, freshLocation(), getCurrentFix(), Context, T, lastLocation() (+9 more)
 
 ### Community 10 - "UpdateChecker"
-Cohesion: 0.36
-Nodes (5): Context, UpdateAvailableDialog(), UpdateChecker, UpdateInfo, Intent
+Cohesion: 0.23
+Nodes (9): Context, UpdateAvailableDialog(), UpdateChecker, UpdateInfo, UpdatePhase, Ask, Downloading, NeedPermission (+1 more)
 
 ### Community 11 - ".loadJson"
 Cohesion: 0.40
@@ -144,8 +145,8 @@ Cohesion: 0.25
 Nodes (6): ReportPeriod, CUSTOM, LAST_30, LAST_7, LAST_MONTH, THIS_MONTH
 
 ### Community 16 - "PdfExport"
-Cohesion: 0.35
-Nodes (5): android, Bitmap, PdfExport, Row, Paint
+Cohesion: 0.29
+Nodes (6): android, Bitmap, PdfExport, Row, EmployeePickerDialog(), Paint
 
 ### Community 17 - "RecordsScreen"
 Cohesion: 0.24
@@ -164,24 +165,24 @@ Cohesion: 0.67
 Nodes (3): TDD em Lógica Pura, Estratégia de Testes (Unit/Room/Segurança/Compose/Carga/Regressão), Comandos de Verificação (gradlew)
 
 ## Knowledge Gaps
-- **62 isolated node(s):** `IN`, `OUT`, `THIS_MONTH`, `LAST_MONTH`, `LAST_7` (+57 more)
+- **65 isolated node(s):** `IN`, `OUT`, `THIS_MONTH`, `LAST_MONTH`, `LAST_7` (+60 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Punch` connect `Punch` to `ChronoViewModel`, `Store`, `ChronoRepository`, `PunchScreen`, `.loadJson`, `PdfExport`, `RecordsScreen`?**
-  _High betweenness centrality (0.151) - this node is a cross-community bridge._
-- **Why does `ChronoViewModel` connect `ChronoViewModel` to `Store`, `Employee`, `PunchScreen`, `rememberLogo`, `CameraCapture`, `RecordsScreen`?**
-  _High betweenness centrality (0.099) - this node is a cross-community bridge._
-- **Why does `PunchScreen()` connect `PunchScreen` to `ChronoViewModel`, `PdfExport`, `Punch`, `CameraCapture`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
+- **Why does `Punch` connect `Punch` to `Store`, `ChronoViewModel`, `ChronoRepository`, `PunchScreen`, `.loadJson`, `PdfExport`, `RecordsScreen`?**
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
+- **Why does `ChronoViewModel` connect `ChronoViewModel` to `App`, `Store`, `PunchScreen`, `rememberLogo`, `CameraCapture`, `RecordsScreen`?**
+  _High betweenness centrality (0.097) - this node is a cross-community bridge._
+- **Why does `PunchScreen()` connect `PunchScreen` to `App`, `Punch`, `ChronoViewModel`, `CameraCapture`, `PdfExport`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `Punch` (e.g. with `PunchScreen()` and `.handlesDuplicateAdjacentPunch_withoutLosingTheGap()`) actually correct?**
   _`Punch` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 4 inferred relationships involving `Tabela "Onde está cada item do MVP"` (e.g. with `EmployeesScreen.kt` and `RecordsScreen.kt`) actually correct?**
   _`Tabela "Onde está cada item do MVP"` has 4 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `IN`, `OUT`, `THIS_MONTH` to the rest of the system?**
-  _62 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `ChronoViewModel` be split into smaller, more focused modules?**
-  _Cohesion score 0.07741935483870968 - nodes in this community are weakly interconnected._
+  _65 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `App` be split into smaller, more focused modules?**
+  _Cohesion score 0.12280701754385964 - nodes in this community are weakly interconnected._

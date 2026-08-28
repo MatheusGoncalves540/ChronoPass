@@ -1,10 +1,10 @@
 {
-  "0": "ChronoViewModel",
+  "0": "App",
   "1": "Store",
   "2": "Tabela \"Onde está cada item do MVP\"",
   "3": "Punch",
   "4": "Pipeline de Reconhecimento Facial",
-  "5": "Employee",
+  "5": "ChronoViewModel",
   "6": "punch Entity (Simple)",
   "7": "ChronoRepository",
   "8": "PunchScreen",
@@ -43,5 +43,6 @@
   "41": "settings.gradle.kts",
   "42": "AGENTS.md",
   "43": "PhotoCompressor",
-  "44": "CLAUDE.md"
+  "44": "CLAUDE.md",
+  "45": "UpdateCheckerTest"
 }

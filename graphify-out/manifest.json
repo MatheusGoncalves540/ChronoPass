@@ -1,12 +1,12 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1787703128.3573382,
-    "ast_hash": "c50fc48420076242450c909200280470",
-    "semantic_hash": "c50fc48420076242450c909200280470"
+    "mtime": 1787929614.0091927,
+    "ast_hash": "428f55f57a00148fa1148b1e20c60b30",
+    "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/MainActivity.kt": {
-    "mtime": 1787709218.1031191,
-    "ast_hash": "f2e86a1533e480cb89fea8731fe9e055",
+    "mtime": 1787930913.1973977,
+    "ast_hash": "10b9bf5baab628fc6b3c7ea8459ebc8f",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/backup/BackupManager.kt": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/screens/SettingsScreen.kt": {
-    "mtime": 1787709233.3234105,
-    "ast_hash": "24f45744fe60f149215877619e06d3ae",
+    "mtime": 1787930853.6814003,
+    "ast_hash": "0836cc385d218e72962ed2dcf31ec662",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/theme/Theme.kt": {
@@ -180,8 +180,8 @@
     "semantic_hash": "5a77163754a4cb3d69eacdef65e340d8"
   },
   "app/src/main/assets/logo.png": {
-    "mtime": 1787705650.3286982,
-    "ast_hash": "743296eba45527383e2c16793b942a57",
+    "mtime": 1787929408.1655898,
+    "ast_hash": "d5b1a1c673e136add3ebe183e85bb6e4",
     "semantic_hash": ""
   },
   "app/src/main/res/drawable-nodpi/ic_launcher_foreground.png": {
@@ -195,8 +195,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt": {
-    "mtime": 1787709193.7215545,
-    "ast_hash": "16c03503e9bb3df8b3e1b3aafc0bf2ea",
+    "mtime": 1787930771.462871,
+    "ast_hash": "29ca64376f7ce791055923a7a2b4af4c",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
@@ -212,6 +212,11 @@
   "CLAUDE.md": {
     "mtime": 1787708609.3375916,
     "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": ""
+  },
+  "app/src/test/java/com/chronopass/app/UpdateCheckerTest.kt": {
+    "mtime": 1787930701.3216681,
+    "ast_hash": "2e31fa1217b31bb61e70ff25a9941c20",
     "semantic_hash": ""
   }
 }
