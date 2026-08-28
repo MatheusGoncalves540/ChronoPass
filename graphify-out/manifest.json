@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/reports/PdfExport.kt": {
-    "mtime": 1787927294.9349766,
-    "ast_hash": "9d110432cc5447d71c46868360b90b03",
+    "mtime": 1787932778.566555,
+    "ast_hash": "ed97081ff618caacd3b9e01440271b6e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/reports/ReportPeriod.kt": {
@@ -150,9 +150,9 @@
     "semantic_hash": "f092910dfa8e47c5a37a452c3f6baf8a"
   },
   "index.py": {
-    "mtime": 1787703859.3916988,
-    "ast_hash": "aea2379385ce51d3ce30f321590f9c49",
-    "semantic_hash": "aea2379385ce51d3ce30f321590f9c49"
+    "mtime": 1787932788.0742621,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
   },
   "settings.gradle.kts": {
     "mtime": 1787674407.0313497,
@@ -160,9 +160,9 @@
     "semantic_hash": "91af19dad503dcb95c8b7cdf80ac9568"
   },
   "PLANO-FUTURO.md": {
-    "mtime": 1787672366.9948356,
-    "ast_hash": "d384a20bc43dd3fe4f935d3d1bb1a9dd",
-    "semantic_hash": "d384a20bc43dd3fe4f935d3d1bb1a9dd"
+    "mtime": 1787932786.2079864,
+    "ast_hash": "4fd37abf8e919e3ca43be7302e6c3848",
+    "semantic_hash": ""
   },
   "PLANO.md": {
     "mtime": 1787672651.2762337,

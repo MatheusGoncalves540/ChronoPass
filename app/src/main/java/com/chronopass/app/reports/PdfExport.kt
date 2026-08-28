@@ -35,7 +35,10 @@ object PdfExport {
                     430f,
                     555f
             ) // Data | Entrada | Saída | Almoço | Horas
-    private const val PHOTO_SIZE = 46f
+    private const val PHOTO_W = 114f
+    private const val PHOTO_H = 103f
+    private const val LOGO_H = 56f
+    private const val LOGO_MAX_W = 210f
 
     private class Row(
             val cells: Array<String>?,
@@ -182,10 +185,16 @@ object PdfExport {
             logo: Bitmap?,
             photo: Bitmap?
     ) {
+        // Logo grande centralizada no cabeçalho, entre o título (esquerda) e a foto (direita).
         logo?.let { bmp ->
-            val h = 46f
-            val w = h * bmp.width / bmp.height
-            val dst = RectF(RIGHT - w, 30f, RIGHT, 30f + h)
+            var h = LOGO_H
+            var w = h * bmp.width / bmp.height
+            if (w > LOGO_MAX_W) {
+                w = LOGO_MAX_W
+                h = w * bmp.height / bmp.width
+            }
+            val cx = (LEFT + RIGHT) / 2f
+            val dst = RectF(cx - w / 2f, 28f, cx + w / 2f, 28f + h)
             c.drawBitmap(
                     bmp,
                     Rect(0, 0, bmp.width, bmp.height),
@@ -219,22 +228,22 @@ object PdfExport {
         y += 26f
         // Funcionário/Período: área de texto limitada para nunca invadir a moldura da foto.
         c.save()
-        c.clipRect(LEFT, 85f, RIGHT - PHOTO_SIZE - 10f, 135f)
+        c.clipRect(LEFT, 85f, RIGHT - PHOTO_W - 10f, 135f)
         c.drawText("Funcionário: $employeeName", LEFT, y, cell)
         y += 16f
         c.drawText("Período: $period", LEFT, y, cell)
         c.restore()
     }
 
-    // Foto do colaborador: moldura arredondada no topo direito, logo abaixo da
-    // logo da loja. Sem foto, um placeholder com as iniciais mantém o cabeçalho
-    // estruturado. Reserva a própria área, então nada do layout existente muda.
+    // Foto do colaborador: moldura arredondada grande no topo direito. Sem foto, um
+    // placeholder com as iniciais mantém o cabeçalho estruturado. Center-crop preserva
+    // a proporção da imagem (não estica na moldura).
     private fun drawEmployeePhoto(
             c: android.graphics.Canvas,
             employeeName: String,
             photo: Bitmap?
     ) {
-        val dst = RectF(RIGHT - PHOTO_SIZE, 84f, RIGHT, 84f + PHOTO_SIZE)
+        val dst = RectF(RIGHT - PHOTO_W, 30f, RIGHT, 30f + PHOTO_H)
         val frame =
                 Paint().apply {
                     color = Color.parseColor("#EDE7F6")
@@ -247,16 +256,22 @@ object PdfExport {
         c.clipPath(path)
         c.drawRect(dst, Paint().apply { color = Color.WHITE })
         if (photo != null) {
+            // Center-crop: recorta a foto pra preencher a moldura sem distorcer.
+            val scale = maxOf(dst.width() / photo.width, dst.height() / photo.height)
+            val srcW = (dst.width() / scale).toInt().coerceAtMost(photo.width)
+            val srcH = (dst.height() / scale).toInt().coerceAtMost(photo.height)
+            val srcLeft = (photo.width - srcW) / 2
+            val srcTop = (photo.height - srcH) / 2
             c.drawBitmap(
                     photo,
-                    Rect(0, 0, photo.width, photo.height),
+                    Rect(srcLeft, srcTop, srcLeft + srcW, srcTop + srcH),
                     dst,
                     Paint().apply { isFilterBitmap = true }
             )
         } else {
             val p =
                     Paint().apply {
-                        textSize = 16f
+                        textSize = 26f
                         isFakeBoldText = true
                         isAntiAlias = true
                         color = Color.GRAY

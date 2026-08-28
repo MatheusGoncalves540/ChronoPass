@@ -1,7 +1,7 @@
 # Graph Report - ChronoPass  (2026-08-28)
 
 ## Corpus Check
-- 40 files · ~22,394 words
+- 40 files · ~22,506 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bb7999ef`
+- Built from commit: `98324dc7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
