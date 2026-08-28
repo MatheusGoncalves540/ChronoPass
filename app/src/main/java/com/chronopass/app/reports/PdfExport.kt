@@ -3,6 +3,7 @@ package com.chronopass.app.reports
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
@@ -25,14 +26,49 @@ object PdfExport {
     private const val TABLE_TOP = 141f
     private const val BODY_BOTTOM = 780f // margem de segurança p/ rodapé/assinatura
     private const val LUNCH_COL = 3 // índice da coluna Almoço em COLS/cells
-    private val COLS = floatArrayOf(40f, 140f, 235f, 330f, 430f, 555f) // Data | Entrada | Saída | Almoço | Horas
+    private val COLS =
+            floatArrayOf(
+                    40f,
+                    140f,
+                    235f,
+                    330f,
+                    430f,
+                    555f
+            ) // Data | Entrada | Saída | Almoço | Horas
+    private const val PHOTO_SIZE = 46f
 
-    private class Row(val cells: Array<String>?, val bold: Boolean = false, val msg: String? = null, val warnLunch: Boolean = false)
+    private class Row(
+            val cells: Array<String>?,
+            val bold: Boolean = false,
+            val msg: String? = null,
+            val warnLunch: Boolean = false
+    )
 
-    fun write(file: File, employeeName: String, period: String, punches: List<Punch>, logo: Bitmap? = null) {
-        val label = Paint().apply { textSize = 11f; isFakeBoldText = true; isAntiAlias = true }
-        val cell = Paint().apply { textSize = 11f; isAntiAlias = true }
-        val notePaint = Paint().apply { textSize = 9.5f; isAntiAlias = true; color = Color.DKGRAY }
+    fun write(
+            file: File,
+            employeeName: String,
+            period: String,
+            punches: List<Punch>,
+            logo: Bitmap? = null,
+            photo: Bitmap? = null
+    ) {
+        val label =
+                Paint().apply {
+                    textSize = 11f
+                    isFakeBoldText = true
+                    isAntiAlias = true
+                }
+        val cell =
+                Paint().apply {
+                    textSize = 11f
+                    isAntiAlias = true
+                }
+        val notePaint =
+                Paint().apply {
+                    textSize = 9.5f
+                    isAntiAlias = true
+                    color = Color.DKGRAY
+                }
 
         // --- linhas da tabela (por dia + total) ---
         val byDay = punches.groupBy { TimeUtil.startOfDay(it.timestamp) }.toSortedMap()
@@ -45,7 +81,8 @@ object PdfExport {
         } else {
             for ((day, dayPunches) in byDay) {
                 val ins = dayPunches.filter { it.type == PunchType.IN }.minByOrNull { it.timestamp }
-                val outs = dayPunches.filter { it.type == PunchType.OUT }.maxByOrNull { it.timestamp }
+                val outs =
+                        dayPunches.filter { it.type == PunchType.OUT }.maxByOrNull { it.timestamp }
                 val worked = PunchRules.totalWorkedMs(dayPunches)
                 val lunch = PunchRules.lunchMs(dayPunches)
                 val required = PunchRules.requiredLunchMs(worked)
@@ -53,32 +90,44 @@ object PdfExport {
                 totalMs += worked
                 totalLunchMs += lunch
                 if (warn) anyLunchWarn = true
-                rows += Row(
-                    arrayOf(
-                        TimeUtil.date(day),
-                        ins?.let { TimeUtil.hm(it.timestamp) } ?: "—",
-                        outs?.let { TimeUtil.hm(it.timestamp) } ?: "—",
-                        (if (lunch > 0) TimeUtil.formatDuration(lunch) else "—") + (if (warn) "*" else ""),
-                        TimeUtil.formatDuration(worked)
-                    ),
-                    warnLunch = warn
-                )
+                rows +=
+                        Row(
+                                arrayOf(
+                                        TimeUtil.date(day),
+                                        ins?.let { TimeUtil.hm(it.timestamp) } ?: "—",
+                                        outs?.let { TimeUtil.hm(it.timestamp) } ?: "—",
+                                        (if (lunch > 0) TimeUtil.formatDuration(lunch) else "—") +
+                                                (if (warn) "*" else ""),
+                                        TimeUtil.formatDuration(worked)
+                                ),
+                                warnLunch = warn
+                        )
             }
         }
-        rows += Row(arrayOf("", "", "Total", TimeUtil.formatDuration(totalLunchMs), TimeUtil.formatDuration(totalMs)), bold = true)
+        rows +=
+                Row(
+                        arrayOf(
+                                "",
+                                "",
+                                "Total",
+                                TimeUtil.formatDuration(totalLunchMs),
+                                TimeUtil.formatDuration(totalMs)
+                        ),
+                        bold = true
+                )
 
         // --- observações: motivo das marcações alteradas, com quebra de linha ---
-        val noteLines = punches
-            .filter { it.editReason != null }
-            .sortedBy { it.timestamp }
-            .flatMap { p ->
-                val tipo = if (p.type == PunchType.IN) "Entrada" else "Saída"
-                val text = "${TimeUtil.date(p.timestamp)} ${TimeUtil.hm(p.timestamp)} ($tipo) — " +
-                    "Alterado por ${p.editedBy ?: "?"}: ${p.editReason}"
-                wrapText(text, notePaint, RIGHT - LEFT)
-            }
+        val noteLines =
+                punches.filter { it.editReason != null }.sortedBy { it.timestamp }.flatMap { p ->
+                    val tipo = if (p.type == PunchType.IN) "Entrada" else "Saída"
+                    val text =
+                            "${TimeUtil.date(p.timestamp)} ${TimeUtil.hm(p.timestamp)} ($tipo) — " +
+                                    "Alterado por ${p.editedBy ?: "?"}: ${p.editReason}"
+                    wrapText(text, notePaint, RIGHT - LEFT)
+                }
 
-        val legendLine = if (anyLunchWarn) "* Intervalo de almoço abaixo do mínimo legal (CLT)." else null
+        val legendLine =
+                if (anyLunchWarn) "* Intervalo de almoço abaixo do mínimo legal (CLT)." else null
 
         // --- paginação da tabela ---
         val rowsPerPage = ((BODY_BOTTOM - TABLE_TOP - ROW_H) / ROW_H).toInt().coerceAtLeast(1)
@@ -88,14 +137,18 @@ object PdfExport {
         val notesHeight = if (noteLines.isEmpty()) 0f else 20f + noteLines.size * 13f
         val signatureHeight = 70f
         val lastPageUsedBottom = TABLE_TOP + ROW_H + tablePages.last().size * ROW_H
-        val trailingFitsLastPage = BODY_BOTTOM - lastPageUsedBottom >= legendHeight + notesHeight + signatureHeight
+        val trailingFitsLastPage =
+                BODY_BOTTOM - lastPageUsedBottom >= legendHeight + notesHeight + signatureHeight
         val totalPages = tablePages.size + if (trailingFitsLastPage) 0 else 1
 
         val doc = PdfDocument()
         for (pageIndex in 0 until totalPages) {
-            val page = doc.startPage(PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, pageIndex + 1).create())
+            val page =
+                    doc.startPage(
+                            PdfDocument.PageInfo.Builder(PAGE_W, PAGE_H, pageIndex + 1).create()
+                    )
             val c = page.canvas
-            drawHeader(c, employeeName, period, logo)
+            drawHeader(c, employeeName, period, logo, photo)
 
             val isTablePage = pageIndex < tablePages.size
             var y = TABLE_TOP
@@ -105,7 +158,11 @@ object PdfExport {
 
             val isLastPage = pageIndex == totalPages - 1
             if (isLastPage) {
-                if (legendLine != null) { y += 14f; c.drawText(legendLine, LEFT, y, notePaint); y += 2f }
+                if (legendLine != null) {
+                    y += 14f
+                    c.drawText(legendLine, LEFT, y, notePaint)
+                    y += 2f
+                }
                 if (noteLines.isNotEmpty()) y = drawNotes(c, y, noteLines, notePaint)
                 drawSignatures(c)
             }
@@ -118,28 +175,117 @@ object PdfExport {
         doc.close()
     }
 
-    private fun drawHeader(c: android.graphics.Canvas, employeeName: String, period: String, logo: Bitmap?) {
+    private fun drawHeader(
+            c: android.graphics.Canvas,
+            employeeName: String,
+            period: String,
+            logo: Bitmap?,
+            photo: Bitmap?
+    ) {
         logo?.let { bmp ->
             val h = 46f
             val w = h * bmp.width / bmp.height
             val dst = RectF(RIGHT - w, 30f, RIGHT, 30f + h)
-            c.drawBitmap(bmp, Rect(0, 0, bmp.width, bmp.height), dst, Paint().apply { isFilterBitmap = true })
+            c.drawBitmap(
+                    bmp,
+                    Rect(0, 0, bmp.width, bmp.height),
+                    dst,
+                    Paint().apply { isFilterBitmap = true }
+            )
         }
-        val title = Paint().apply { textSize = 20f; isFakeBoldText = true; isAntiAlias = true }
-        val sub = Paint().apply { textSize = 12f; isAntiAlias = true; color = Color.DKGRAY }
-        val cell = Paint().apply { textSize = 11f; isAntiAlias = true }
+        drawEmployeePhoto(c, employeeName, photo)
+        val title =
+                Paint().apply {
+                    textSize = 20f
+                    isFakeBoldText = true
+                    isAntiAlias = true
+                }
+        val sub =
+                Paint().apply {
+                    textSize = 12f
+                    isAntiAlias = true
+                    color = Color.DKGRAY
+                }
+        val cell =
+                Paint().apply {
+                    textSize = 11f
+                    isAntiAlias = true
+                }
 
         var y = 55f
-        c.drawText("CHRONOPASS", LEFT, y, title); y += 20f
-        c.drawText("Espelho de ponto", LEFT, y, sub); y += 26f
-        c.drawText("Funcionário: $employeeName", LEFT, y, cell); y += 16f
+        c.drawText("CHRONOPASS", LEFT, y, title)
+        y += 20f
+        c.drawText("Espelho de ponto", LEFT, y, sub)
+        y += 26f
+        // Funcionário/Período: área de texto limitada para nunca invadir a moldura da foto.
+        c.save()
+        c.clipRect(LEFT, 85f, RIGHT - PHOTO_SIZE - 10f, 135f)
+        c.drawText("Funcionário: $employeeName", LEFT, y, cell)
+        y += 16f
         c.drawText("Período: $period", LEFT, y, cell)
+        c.restore()
     }
 
+    // Foto do colaborador: moldura arredondada no topo direito, logo abaixo da
+    // logo da loja. Sem foto, um placeholder com as iniciais mantém o cabeçalho
+    // estruturado. Reserva a própria área, então nada do layout existente muda.
+    private fun drawEmployeePhoto(
+            c: android.graphics.Canvas,
+            employeeName: String,
+            photo: Bitmap?
+    ) {
+        val dst = RectF(RIGHT - PHOTO_SIZE, 84f, RIGHT, 84f + PHOTO_SIZE)
+        val frame =
+                Paint().apply {
+                    color = Color.parseColor("#EDE7F6")
+                    style = Paint.Style.STROKE
+                    strokeWidth = 1.2f
+                    isAntiAlias = true
+                }
+        val path = Path().apply { addRoundRect(dst, 8f, 8f, Path.Direction.CW) }
+        c.save()
+        c.clipPath(path)
+        c.drawRect(dst, Paint().apply { color = Color.WHITE })
+        if (photo != null) {
+            c.drawBitmap(
+                    photo,
+                    Rect(0, 0, photo.width, photo.height),
+                    dst,
+                    Paint().apply { isFilterBitmap = true }
+            )
+        } else {
+            val p =
+                    Paint().apply {
+                        textSize = 16f
+                        isFakeBoldText = true
+                        isAntiAlias = true
+                        color = Color.GRAY
+                        textAlign = Paint.Align.CENTER
+                    }
+            c.drawText(initials(employeeName), dst.centerX(), dst.centerY() + 6f, p)
+        }
+        c.restore()
+        c.drawRoundRect(dst, 8f, 8f, frame)
+    }
+
+    private fun initials(name: String): String =
+            name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }.take(2).joinToString("") {
+                it.first().uppercaseChar().toString()
+            }
+
     /** Desenha o cabeçalho de colunas + linhas desta página; retorna o y após a tabela. */
-    private fun drawTablePage(c: android.graphics.Canvas, pageRows: List<Row>, label: Paint, cell: Paint): Float {
+    private fun drawTablePage(
+            c: android.graphics.Canvas,
+            pageRows: List<Row>,
+            label: Paint,
+            cell: Paint
+    ): Float {
         val headerBg = Paint().apply { color = Color.parseColor("#EDE7F6") }
-        val line = Paint().apply { color = Color.parseColor("#BBBBBB"); strokeWidth = 0.8f }
+        val line =
+                Paint().apply {
+                    color = Color.parseColor("#BBBBBB")
+                    strokeWidth = 0.8f
+                }
 
         val warnBg = Paint().apply { color = Color.parseColor("#FBE0E0") }
         var y = TABLE_TOP
@@ -153,7 +299,8 @@ object PdfExport {
                 c.drawText(row.msg, LEFT + 6f, y + 15f, cell)
             } else {
                 if (row.bold) c.drawRect(LEFT, y, RIGHT, y + ROW_H, headerBg)
-                else if (row.warnLunch) c.drawRect(COLS[LUNCH_COL], y, COLS[LUNCH_COL + 1], y + ROW_H, warnBg)
+                else if (row.warnLunch)
+                        c.drawRect(COLS[LUNCH_COL], y, COLS[LUNCH_COL + 1], y + ROW_H, warnBg)
                 drawRow(c, y, row.cells!!, if (row.bold) label else cell)
             }
             y += ROW_H
@@ -161,14 +308,27 @@ object PdfExport {
 
         val tableBottom = y
         var gy = tableTop
-        while (gy <= tableBottom + 0.1f) { c.drawLine(LEFT, gy, RIGHT, gy, line); gy += ROW_H }
+        while (gy <= tableBottom + 0.1f) {
+            c.drawLine(LEFT, gy, RIGHT, gy, line)
+            gy += ROW_H
+        }
         for (x in COLS) c.drawLine(x, tableTop, x, tableBottom, line)
         return y
     }
 
-    private fun drawNotes(c: android.graphics.Canvas, top: Float, lines: List<String>, paint: Paint): Float {
+    private fun drawNotes(
+            c: android.graphics.Canvas,
+            top: Float,
+            lines: List<String>,
+            paint: Paint
+    ): Float {
         var y = top + 20f
-        val titlePaint = Paint().apply { textSize = 10.5f; isFakeBoldText = true; isAntiAlias = true }
+        val titlePaint =
+                Paint().apply {
+                    textSize = 10.5f
+                    isFakeBoldText = true
+                    isAntiAlias = true
+                }
         c.drawText("Alterações", LEFT, y, titlePaint)
         y += 15f
         for (l in lines) {
@@ -182,22 +342,41 @@ object PdfExport {
         val sigY = 770f
         val midGap = 40f
         val colW = (RIGHT - LEFT - midGap) / 2
-        val sig = Paint().apply { color = Color.DKGRAY; strokeWidth = 1f }
+        val sig =
+                Paint().apply {
+                    color = Color.DKGRAY
+                    strokeWidth = 1f
+                }
         c.drawLine(LEFT, sigY, LEFT + colW, sigY, sig)
         c.drawLine(RIGHT - colW, sigY, RIGHT, sigY, sig)
-        val sigLabel = Paint().apply { textSize = 10f; isAntiAlias = true; color = Color.DKGRAY; textAlign = Paint.Align.CENTER }
+        val sigLabel =
+                Paint().apply {
+                    textSize = 10f
+                    isAntiAlias = true
+                    color = Color.DKGRAY
+                    textAlign = Paint.Align.CENTER
+                }
         c.drawText("Assinatura do funcionário", LEFT + colW / 2, sigY + 14f, sigLabel)
         c.drawText("Assinatura do gerente", RIGHT - colW / 2, sigY + 14f, sigLabel)
     }
 
     private fun drawPageNumber(c: android.graphics.Canvas, current: Int, total: Int) {
-        val paint = Paint().apply {
-            textSize = 9f; isAntiAlias = true; color = Color.DKGRAY; textAlign = Paint.Align.CENTER
-        }
+        val paint =
+                Paint().apply {
+                    textSize = 9f
+                    isAntiAlias = true
+                    color = Color.DKGRAY
+                    textAlign = Paint.Align.CENTER
+                }
         c.drawText("Página $current de $total", (LEFT + RIGHT) / 2, 825f, paint)
     }
 
-    private fun drawRow(c: android.graphics.Canvas, top: Float, cells: Array<String>, paint: Paint) {
+    private fun drawRow(
+            c: android.graphics.Canvas,
+            top: Float,
+            cells: Array<String>,
+            paint: Paint
+    ) {
         val baseline = top + 15f
         for (i in cells.indices) {
             c.drawText(cells[i], COLS[i] + 6f, baseline, paint)
