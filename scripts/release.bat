@@ -79,9 +79,18 @@ echo [6/6] Commit, tag, push e GitHub Release...
 git add app/build.gradle.kts
 git commit -m "chore: bump version to %NEW_TAG% [skip ci]"
 if errorlevel 1 ( echo   Falha no commit. & exit /b 1 )
+git fetch origin >nul 2>&1
+git merge-base --is-ancestor origin/production HEAD 2>nul
+if errorlevel 1 (
+  echo   Production divergiu - integrando origin/production em main...
+  REM -X ours: mantem o codigo local (no production so existe o bump do CI).
+  git merge origin/production -m "merge: production em main [skip ci]" -X ours
+  if errorlevel 1 ( echo   Merge com production falhou. & exit /b 1 )
+)
 git tag %NEW_TAG%
 git push origin main
 if errorlevel 1 ( echo   Push para main falhou. & exit /b 1 )
+git branch -f production HEAD 2>nul
 git push origin HEAD:production
 if errorlevel 1 ( echo   Push para production falhou. & exit /b 1 )
 git push origin %NEW_TAG%
