@@ -30,7 +30,7 @@ if not defined BUMP (
   if "!BUMP!"=="patch" ( git log %PREV_TAG%..HEAD --pretty=%%B 2>nul | findstr /i /c:"[minor]" >nul && set "BUMP=minor" )
 )
 if not "%BUMP%"=="major" if not "%BUMP%"=="minor" if not "%BUMP%"=="patch" (
-  echo   Bump invalido: "%BUMP%" (use patch, minor ou major). & exit /b 1
+  echo   Bump invalido: "%BUMP%" - use patch, minor ou major. & exit /b 1
 )
 
 for /f "tokens=1-3 delims=." %%a in ("%PREV_TAG:v=%") do set "MAJ=%%a" & set "MIN=%%b" & set "PAT=%%c"
