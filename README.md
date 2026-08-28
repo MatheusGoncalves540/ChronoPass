@@ -11,7 +11,7 @@ Sem servidor, sem IA, sem dependência de internet para o uso diário.
 
 | | |
 |---|---|
-| Versão | 2.0.0 (versionCode 2) |
+| Versão | 2.2.0 (versionCode 4) |
 | SDK | minSdk 26 (Android 8.0) · targetSdk 35 · compileSdk 35 |
 | Build | Kotlin 1.x · JDK 17 · Gradle wrapper |
 | Stack | Jetpack Compose (BOM 2024.12.01) · Room 2.6.1 · CameraX 1.4.1 · play-services-location 21.3.0 · Coil 2.7.0 |
@@ -81,7 +81,7 @@ app/src/main/java/com/chronopass/app/
     ├── components/          # Logo, EmployeePicker
     └── theme/               # Material 3
 
-scripts/                     # dev.bat, apk.bat, test.bat, gradlew.bat
+scripts/                     # dev.bat, apk.bat, test.bat, release.bat, gradlew.bat
 docs/                        # PLANO.md (especificação/MVP), PLANO-FUTURO.md (visão facial)
 keystore/                    # Chave de release (gitignorada)
 graphify-out/                # Grafo de conhecimento do código (gerado por graphify)
@@ -126,6 +126,7 @@ O Studio gera o `gradle-wrapper.jar`. Ou, com Gradle instalado: `gradle wrapper 
 | `dev.bat` | Build + instala no emulador `chrono` (inicia se preciso) e abre o app |
 | `apk.bat` | Gera o APK release em `app/build/outputs/apk/release/app-release.apk` |
 | `test.bat` | Roda os testes de lógica (não precisa de emulador) |
+| `release.bat` | Roda testes, builda o APK release, faz o bump de versão (tag vX.Y.Z) e publica no GitHub Releases (branch `production`) |
 
 ### Testes
 
