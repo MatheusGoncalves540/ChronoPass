@@ -81,7 +81,10 @@ fun App() {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) scope.launch { checkUpdate() }
+            if (event == Lifecycle.Event.ON_RESUME) {
+                scope.launch { checkUpdate() }
+                vm.syncNow {} // gatilho: abertura/foreground drena a fila de sync
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }

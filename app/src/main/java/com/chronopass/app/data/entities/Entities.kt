@@ -2,6 +2,7 @@ package com.chronopass.app.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 enum class PunchType {
     IN,
@@ -11,6 +12,7 @@ enum class PunchType {
 @Entity(tableName = "employee")
 data class Employee(
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
+        val uid: String? = UUID.randomUUID().toString(), // id externo p/ o Summus
         val name: String,
         val code: String = "",
         val photoPath: String? = null,
@@ -22,6 +24,7 @@ data class Employee(
 @Entity(tableName = "punch")
 data class Punch(
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
+        val uid: String? = UUID.randomUUID().toString(), // id externo p/ o Summus
         val employeeId: Long,
         val timestamp: Long,
         val type: PunchType,
@@ -50,4 +53,18 @@ data class Store(
 data class AppSetting(
         @PrimaryKey val key: String,
         val value: String,
+)
+
+// Fila de envio ao Summus (SUMUS-INTEGRACAO.md §7). Só o schema — enfileirar/drenar é fase
+// posterior.
+@Entity(tableName = "sync_outbox")
+data class OutboxItem(
+        @PrimaryKey(autoGenerate = true) val id: Long = 0,
+        val tipo: String, // EMPLOYEE | PUNCH | PHOTO
+        val refUid: String? = null, // uid da entidade (foto de employee: "employee.<uid>")
+        val payload: String, // JSON do estado atual da entidade
+        val status: String = "PENDING", // PENDING | FAILED | DONE
+        val tentativas: Int = 0,
+        val ultimoErro: String? = null,
+        val createdAt: Long = System.currentTimeMillis(),
 )

@@ -7,6 +7,7 @@ import com.chronopass.app.data.entities.*
 import com.chronopass.app.data.repo.ChronoRepository
 import java.io.File
 import java.io.InputStream
+import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -95,6 +96,7 @@ object BackupManager {
             empDao.insert(
                     Employee(
                             id = o.getLong("id"),
+                            uid = o.uidOrNew("uid"),
                             name = o.getString("name"),
                             code = o.optString("code"),
                             photoPath =
@@ -111,6 +113,7 @@ object BackupManager {
             punDao.insert(
                     Punch(
                             id = o.getLong("id"),
+                            uid = o.uidOrNew("uid"),
                             employeeId = o.getLong("employeeId"),
                             timestamp = o.getLong("timestamp"),
                             type = PunchType.valueOf(o.getString("type")),
@@ -152,6 +155,7 @@ object BackupManager {
     private fun employeeJson(e: Employee) =
             JSONObject()
                     .put("id", e.id)
+                    .put("uid", e.uid ?: JSONObject.NULL)
                     .put("name", e.name)
                     .put("code", e.code)
                     .put("photoPath", e.photoPath ?: JSONObject.NULL)
@@ -161,6 +165,7 @@ object BackupManager {
     private fun punchJson(p: Punch) =
             JSONObject()
                     .put("id", p.id)
+                    .put("uid", p.uid ?: JSONObject.NULL)
                     .put("employeeId", p.employeeId)
                     .put("timestamp", p.timestamp)
                     .put("type", p.type.name)
@@ -183,4 +188,8 @@ object BackupManager {
 
     private fun JSONObject.optDoubleOrNull(k: String): Double? =
             if (isNull(k)) null else getDouble(k)
+
+    // Backup antigo (pré-uid) não tem o campo; gera um UUID novo no restore.
+    private fun JSONObject.uidOrNew(k: String): String =
+            if (isNull(k)) UUID.randomUUID().toString() else getString(k)
 }

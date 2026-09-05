@@ -26,6 +26,10 @@
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
+rem ChronoPass: roda o Gradle a partir da raiz do projeto (onde esta settings.gradle.kts),
+rem nao da pasta do script. APP_HOME/CLASSPATH abaixo usam %%~dp0 e independem do cwd.
+cd /d "%~dp0.."
+
 set DIRNAME=%~dp0
 if "%DIRNAME%"=="" set DIRNAME=.
 @rem This is normally unused
