@@ -13,11 +13,16 @@ simples), veja o [Manual Operacional](../MANUAL-OPERACIONAL.md).
 
 ## 1. Visão geral
 
-Aplicativo Android nativo (Kotlin + Jetpack Compose, Material 3), **100% offline**,
-sem servidor e sem dependência de internet para o uso diário. Arquitetura simples em
-pacotes por responsabilidade, com estado compartilhado em um `ViewModel` único
-(`ui/ChronoViewModel.kt`). Persistência local com Room/SQLite; fotos no armazenamento
-privado do app (`android:allowBackup="false"`), nunca na galeria.
+Aplicativo Android nativo (Kotlin + Jetpack Compose, Material 3), **100% offline
+para o uso diário** — a marcação de ponto nunca depende de internet. Arquitetura
+simples em pacotes por responsabilidade, com estado compartilhado em um `ViewModel`
+único (`ui/ChronoViewModel.kt`). Persistência local com Room/SQLite; fotos no
+armazenamento privado do app (`android:allowBackup="false"`), nunca na galeria.
+
+Integração **opcional** com o SummusBackoffice (pacote `sync/`, detalhes no §12): sem
+URL + api-key configuradas em Configurações, o app roda exatamente como um app 100%
+local, sem servidor nenhum. Com a integração ativa, o app envia ponto/cadastro e
+recebe cadastro, loja e correções de ponto — sem perder nenhuma marcação já gravada.
 
 Princípio de produto: **livro de ponto digital com evidência fotográfica e
 geográfica**, não um sistema biométrico.
@@ -47,6 +52,7 @@ app/src/main/java/com/chronopass/app/
 │   └── entities/            # Employee, Punch, Store, AppSetting
 ├── camera/                  # CameraX + armazenamento privado das fotos
 ├── location/                # LocationHelper (Fused Location)
+├── sync/                    # Sincronização com o SummusBackoffice, subida + descida (§12)
 ├── reports/                 # PdfExport, CsvExport, ReportPeriod, TimeUtil
 ├── backup/                  # BackupManager (zip: data.json + fotos)
 ├── update/                  # UpdateChecker (GitHub Releases)
@@ -69,8 +75,10 @@ graphify-out/                # Grafo de conhecimento do código (gerado por grap
 | Regra entrada↔saída, horas e almoço CLT | `data/PunchRules.kt` |
 | Câmera + foto privada | `camera/CameraCapture.kt`, `camera/PhotoStore.kt`, `camera/PhotoCompressor.kt` |
 | Localização (lat/lon/precisão) | `location/LocationHelper.kt` |
-| Loja + raio | `data/entities` (Store), `ui/screens/SettingsScreen.kt` |
+| Loja + raio (somente-leitura quando a loja é gerida pelo Summus) | `data/entities` (Store), `ui/screens/SettingsScreen.kt` |
 | Banco Room | `data/database`, `data/dao`, `data/repo` |
+| Sincronização com o SummusBackoffice (subida + descida) | `sync/SummusClient.kt`, `sync/SyncManager.kt`, `sync/SyncRules.kt`, `sync/SummusPayloads.kt`, `sync/PullPayloads.kt`, `sync/OutboxPayloads.kt` |
+| Redimensionamento/compressão de foto (teto 1280px, WEBP) | `camera/PhotoCompressor.kt`, `camera/ImageScale.kt` |
 | Área admin (senha) | `ui/screens/AdminScreen.kt` (padrão `1234`, troque em Configurações) |
 | Funcionários CRUD + foto de cadastro | `ui/screens/EmployeesScreen.kt` |
 | Marcações + correção + excluir | `ui/screens/RecordsScreen.kt` |
@@ -109,6 +117,7 @@ O Studio gera o `gradle-wrapper.jar`. Ou, com Gradle instalado:
 | `apk.bat` | Gera o APK release em `app/build/outputs/apk/release/app-release.apk` |
 | `test.bat` | Roda os testes de lógica (não precisa de emulador) |
 | `release.bat` | Roda testes, builda o APK release, faz o bump de versão (tag vX.Y.Z) e publica no GitHub Releases (branch `production`) |
+| `contract-test.bat [baseUrl] [apiKey]` | Roda `SummusContractTest` (E2E) contra um SummusBackoffice real — default `http://localhost:3001` / chave `dev` |
 
 ## 7. Testes
 
@@ -123,6 +132,13 @@ Testes de lógica pura na JVM (sem emulador):
 | `PunchRulesTest` | Alternância entrada/saída, soma de horas (incluindo turno que vira a meia-noite e dia sem par), almoço e mínimo CLT |
 | `ReportPeriodTest` | Intervalos de "este mês", "mês passado", 7/30 dias |
 | `UpdateCheckerTest` | Comparação de versões do auto-update |
+| `SyncRulesTest` | Backoff medido de `lastAttemptAt` (não `createdAt`); guarda de revisão da descida (só aplica revisão maior que a local) |
+| `PullPayloadsTest` | Parser do envelope do pull: campos completos, nulos explícitos, listas vazias/ausentes, `schemaVersion` inesperado e envelope inválido falham limpo (sem crash, sem avançar cursor) |
+| `ApplyFromSummusTest` | `applyFromSummus` não enfileira na `sync_outbox` (seam anti-eco); merge de funcionário e de correção de ponto |
+| `OutboxPayloadsTest` | Codec da fila `sync_outbox`: round-trip de employee/punch, nulos explícitos |
+| `SummusPayloadsTest` | Montagem dos lotes 1/2 no shape real do servidor (`punchType`, RFC3339, `photoKey`, etc.) |
+| `ImageScaleTest` | Cálculo do `inSampleSize`: teto de 1280px no maior lado, teto inválido não trava |
+| `SummusContractTest` | E2E opcional contra um SummusBackoffice real (lotes 1/2, ack 2xx) — pulado automaticamente sem `SUMMUS_TEST_BASE_URL` definida; ver `scripts/contract-test.bat` |
 
 ## 8. Chave de release
 
@@ -160,17 +176,103 @@ com barra de progresso e instala via FileProvider (pede a permissão de "instala
 fora da Play Store" quando necessário). Download em `.part` + rename: nunca instala um
 arquivo pela metade.
 
-## 12. Documentos relacionados
+## 12. Sincronização com o SummusBackoffice (opcional)
+
+Feature de administração configurada em Configurações → SummusBackoffice (URL + api-key,
+`app_settings`). Sem essas duas informações preenchidas, `SyncManager.sync` devolve
+`SyncOutcome.Inativo` e o app funciona exatamente como sem integração nenhuma — nada muda
+no uso diário. Contrato completo (payloads campo a campo) em
+[`../SUMUS-INTEGRACAO.md`](../SUMUS-INTEGRACAO.md); aqui, o que o código faz.
+
+### Subida (app → Summus) — já existia, sem mudança de contrato
+
+- Fila persistente `sync_outbox` (Room): toda escrita de employee/punch enfileira um evento
+  com o snapshot da entidade (`ChronoRepository`, método `enfileirar`).
+- Dois lotes por rodada — metadados (`POST /api/integrations/chronopass/sync`) e fotos
+  (`POST /api/integrations/chronopass/photos`) — cada um com teto de itens por rodada
+  (`SyncRules.LOTE_METADADOS` = 50, `SyncRules.LOTE_FOTOS` = 20 fotos), repetindo até a fila
+  esvaziar: um aparelho semanas offline não monta mais um `JSONObject` único em memória contra
+  o `ReadTimeout` de 20s.
+- Backoff por tentativa (`SyncRules.backoff`): 30s → 1min → 5min, medido a partir de
+  `lastAttemptAt` (coluna nova na v5) — medir de `createdAt`, como antes, não freava retry de
+  itens com mais de 5 minutos de idade.
+- Foto de funcionário sobe no mesmo lote 2, com `key = "employee.<uid>"`; o servidor roteia
+  chaves `employee.*` para o cadastro do RH em vez da lixeira de fotos de ponto.
+- Gatilhos: abertura do app / retorno ao foreground, após cada ponto registrado, botão
+  "Sincronizar agora". Sem WorkManager.
+
+### Descida (Summus → app) — canal novo
+
+`GET {base}/api/integrations/chronopass/pull?since=<cursor>`, atrás do mesmo api-key da
+subida. Parser 100% JVM em `sync/PullPayloads.kt` (org.json, sem `android.*`, testável em
+JUnit puro). Envelope, do jeito que o app consome:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "serverTime": "2026-09-05T14:03:12.000Z",
+  "store": { "uid": "<rh_stores.id>", "name": "...", "latitude": -23.5, "longitude": -46.6, "radiusMeters": 150.0 },
+  "employees": [
+    { "uid": "<rh_employees.id>", "name": "...", "role": null, "active": true, "deleted": false, "photoHash": "<sha256|null>" }
+  ],
+  "punchCorrections": [
+    { "uid": "...", "punchType": "in", "timestampUtc": "...", "editedBy": "...", "editedAt": "...",
+      "editReason": "...", "deleted": false, "revision": 3 }
+  ]
+}
+```
+
+- `serverTime` é o cursor: guardado em `app_settings` (chave `summus_pull_since`), volta como
+  `?since=` no próximo pull. Cursor OPACO — nenhuma aritmética de data do lado do app.
+- `since` vazio (primeiro pull, ou cursor perdido) traz a janela completa; `store` e
+  `employees` sempre vêm inteiros (sem paginação — o roster de uma loja é pequeno), só
+  `punchCorrections` é recortado pelo `since`.
+- Envelope inválido, `schemaVersion` diferente do esperado, ou `punchType` desconhecido
+  derrubam o pull inteiro sem aplicar nada (`PullResult.Falha`) — o cursor não avança e o
+  servidor reenvia a mesma janela no próximo pull.
+- Foto de funcionário fica fora do corpo do pull: `photoHash` diferente do último aplicado
+  dispara `GET {base}/api/integrations/chronopass/employee-photo/{uid}`, um funcionário por
+  vez, com teto de 5 MiB (`SummusClient.MAX_PHOTO_BYTES`).
+
+### Regra de ouro: nenhum dado de marcação se perde
+
+- Toda escrita da descida passa por `ChronoRepository.applyFromSummus` / `applyPull` — grava
+  direto nos DAOs **sem** enfileirar na `sync_outbox` (o "seam anti-eco": sem isso, a mudança
+  recebida do servidor voltaria para cima no próximo sync).
+- Correção de ponto é sempre **update**, nunca substituição cega: só aplica se a `revision`
+  recebida for **maior** que `punch.serverRevision` local (`SyncRules.aplicaRevisao`) — reenvio
+  da mesma correção não reaplica, e uma correção que chega fora de ordem não regride o ponto.
+- `deleted:true` (funcionário ou ponto) é sempre soft-delete — a linha continua no banco,
+  nunca é apagada.
+- `MIGRATION_4_5` (`ChronoDatabase.kt`, version 5) cria índice único em `employee.uid` e
+  `punch.uid`. Duplicata legada (de antes do índice existir) é resolvida **reatribuindo** um
+  uid novo à linha mais nova, nunca com `DELETE` — nenhuma marcação já gravada some.
+
+### Cadastro: o Summus manda, o app continua com fallback local
+
+- `employee.origin` (`SUMMUS` | `LOCAL`) diz quem é dono do cadastro. Funcionário criado no
+  Summus chega com `origin=SUMMUS` e o Summus passa a mandar em nome/cargo/status; funcionário
+  cadastrado no próprio app nasce `origin=LOCAL` e continua funcionando offline normalmente —
+  ele só sobe na subida e aparece do lado do Summus como sugestão de vínculo (a confirmação do
+  vínculo é humana, não automática; não há casamento heurístico do lado do app).
+- `employee.role` (cargo) só é preenchido pelo Summus; o app não tem tela para editar cargo.
+- `store.managedBySummus` (setado quando o pull traz `store`) trava latitude, longitude e raio
+  como **somente-leitura** na tela de Configurações (`SettingsScreen.kt`) — esses campos vêm do
+  backoffice e seriam sobrescritos no próximo pull mesmo se editados localmente.
+
+## 13. Documentos relacionados
 
 | Documento | Natureza |
 |---|---|
 | `../docs/PLANO.md` | Especificação original e checklist do MVP (versão 1) |
 | `../docs/PLANO-FUTURO.md` | Visão futura: reconhecimento facial, criptografia, auditoria |
-| `../SUMUS-INTEGRACAO.md` | Contrato de sincronização com o SummusBackoffice — **nada implementado ainda** (schema de payloads, fila `sync_outbox`, ordem de implementação) |
+| `../SUMUS-INTEGRACAO.md` | Contrato de sincronização com o SummusBackoffice — **implementado e testado** (schema dos payloads de subida e descida, fila `sync_outbox`, regras contra perda de dado) |
 | `../MANUAL-OPERACIONAL.md` | Manual do usuário final (sem linguagem técnica) |
 
-## 13. Fora de escopo (ver `../docs/PLANO-FUTURO.md`)
+## 14. Fora de escopo (ver `../docs/PLANO-FUTURO.md`)
 
-Reconhecimento facial, servidor, sincronização online, múltiplas lojas, folha de pagamento,
-banco de horas complexo, AFD/Portaria 671 e notificações — deliberadamente não implementados.
-O modelo de dados atual não impede adicioná-los depois.
+Reconhecimento facial, folha de pagamento, banco de horas complexo, AFD/Portaria 671 e
+notificações — deliberadamente não implementados. (Sincronização com um backoffice existe
+como integração opcional com o SummusBackoffice — ver §12 — mas o app em si continua
+gerindo uma única loja por instalação; múltiplas lojas por aparelho não é implementado.)
+O modelo de dados atual não impede adicionar o restante depois.

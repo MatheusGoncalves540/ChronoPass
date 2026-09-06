@@ -29,7 +29,7 @@ object SummusPayloads {
     data class PhotoPayload(
             val key: String,
             val fileName: String,
-            val contentType: String = "image/jpeg",
+            val contentType: String = "image/webp", // PhotoCompressor grava WEBP
             val dataBase64: String,
     )
 

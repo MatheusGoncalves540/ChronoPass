@@ -34,6 +34,9 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
     var lon by remember(store) { mutableStateOf(store?.longitude?.toString() ?: "") }
     var radius by remember(store) { mutableStateOf(store?.radius?.toString() ?: "100") }
     var msg by remember { mutableStateOf<String?>(null) }
+    // Loja gerida pelo Summus: coordenada/raio descem no pull e seriam sobrescritos no próximo —
+    // editar aqui só daria a impressão de ter mudado algo.
+    val gerida = store?.managedBySummus == true
 
     var newPw by remember { mutableStateOf("") }
     var sumusUrl by remember { mutableStateOf("") }
@@ -90,6 +93,13 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
             )
+            if (gerida) {
+                Text(
+                        "Loja gerida pelo SummusBackoffice: coordenada e raio vêm do backoffice e são atualizados a cada sincronização.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                )
+            }
             OutlinedTextField(
                     name,
                     { name = it },
@@ -101,6 +111,7 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     lat,
                     { lat = it },
                     label = { Text("Latitude") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -109,6 +120,7 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     lon,
                     { lon = it },
                     label = { Text("Longitude") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -117,22 +129,25 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     radius,
                     { radius = it },
                     label = { Text("Raio permitido (metros)") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
             )
             Row {
-                OutlinedButton(
-                        onClick = {
-                            locPerm.launch(
-                                    arrayOf(
-                                            Manifest.permission.ACCESS_FINE_LOCATION,
-                                            Manifest.permission.ACCESS_COARSE_LOCATION
-                                    )
-                            )
-                        }
-                ) { Text("Usar local atual") }
-                Spacer(Modifier.width(8.dp))
+                if (!gerida) {
+                    OutlinedButton(
+                            onClick = {
+                                locPerm.launch(
+                                        arrayOf(
+                                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                                Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                )
+                            }
+                    ) { Text("Usar local atual") }
+                    Spacer(Modifier.width(8.dp))
+                }
                 Button(
                         onClick = {
                             val la = lat.toDoubleOrNull()

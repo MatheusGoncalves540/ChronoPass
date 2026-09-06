@@ -1,8 +1,8 @@
 # ChronoPass → SummusBackoffice — Plano de integração
 
 Documento de planejamento da sincronização entre o app ChronoPass e o SummusBackoffice
-(backoffice interno). Decisões fechadas com o usuário. Nenhuma implementação feita ainda —
-este arquivo é o contrato a ser seguido.
+(backoffice interno). Decisões fechadas com o usuário. **Subida (§1-7) e descida (§8)
+implementadas e testadas** — este arquivo documenta o contrato tal como o app usa.
 
 ---
 
@@ -179,13 +179,75 @@ sync_outbox(
   foreground, após cada ponto registrado, e botão **"Sincronizar agora"** no admin.
   Upgrade futuro: trocar o gatilho por WorkManager (androidx.work) sem tocar na fila.
 
-## 8. Ponte futura de ids do Summus (reservado)
+## 8. Ponte de ids e canal de descida (implementado)
 
-- O Summus terá um `employeeId` próprio; nada implementado ainda.
-- Quando a ponte existir: entra um campo `summusEmployeeId` no registro do employee + um
-  mapeamento persistido no app (tabela própria).
-- O `uid` já nasce como chave externa estável que permite esse casamento sem migração de
-  dados. Nada no contrato atual muda quando isso acontecer.
+Bidirecional: além da subida (§1-7, inalterada), o app agora **puxa** cadastro, loja e
+correções de ponto do Summus.
+
+### Identidade — sem campo `summusEmployeeId` separado
+
+O rascunho original previa um campo `summusEmployeeId` + tabela de mapeamento própria. Não foi
+isso que foi implementado: o `uid` do employee (item 4) **é a própria ponte**. Quando o RH cria
+um funcionário para a loja, o `uid` que o app recebe na descida é o `rh_employees.id` do
+Summus — não existe coluna `summusEmployeeId` nem tabela de mapeamento, o casamento é o mesmo
+campo que já existia para dedupe/idempotência.
+
+- `employee.origin` (`SUMMUS` | `LOCAL`) substitui a ideia de "reservado" do rascunho antigo:
+  diz quem é dono do cadastro. Funcionário criado no Summus chega com `origin=SUMMUS` e o
+  Summus passa a mandar em nome/cargo/status; funcionário cadastrado no próprio app nasce
+  `origin=LOCAL` e **continua funcionando offline normalmente** — ele só sobe na subida e
+  aparece do lado do Summus como sugestão de vínculo (confirmação humana, nunca casamento
+  automático).
+- `employee.role` (cargo) é um campo novo, só preenchido pelo Summus.
+
+### `GET /api/integrations/chronopass/pull?since=<cursor>`
+
+Atrás do mesmo `apiKeyAuth` da subida. Parser: `sync/PullPayloads.kt` (100% JVM, org.json).
+Envelope:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "serverTime": "2026-09-05T14:03:12.000Z",
+  "store": { "uid": "<rh_stores.id>", "name": "...", "latitude": -23.5, "longitude": -46.6, "radiusMeters": 150.0 },
+  "employees": [
+    { "uid": "<rh_employees.id>", "name": "...", "role": null, "active": true, "deleted": false, "photoHash": "<sha256|null>" }
+  ],
+  "punchCorrections": [
+    { "uid": "...", "punchType": "in", "timestampUtc": "...", "editedBy": "...", "editedAt": "...",
+      "editReason": "...", "deleted": false, "revision": 3 }
+  ]
+}
+```
+
+- `serverTime` é o cursor: guardado em `app_settings` (`summus_pull_since`), volta como
+  `?since=` no próximo pull. Cursor OPACO — nenhuma aritmética de data do lado do app, sem
+  risco de relógio do aparelho.
+- `since` vazio (primeiro pull, ou cursor perdido) = janela completa. Sem paginação de
+  cadastro/loja (roster de uma loja é pequeno); só `punchCorrections` é recortado pelo `since`.
+- Envelope inválido, `schemaVersion` diferente do esperado ou `punchType` desconhecido derrubam
+  o pull inteiro sem aplicar nada — cursor não avança, servidor reenvia a mesma janela.
+
+### `GET /api/integrations/chronopass/employee-photo/{uid}`
+
+Foto de funcionário fica fora do corpo do pull. `photoHash` diferente do último aplicado
+(guardado em `app_settings`, uma chave por uid) dispara este GET, um funcionário por vez,
+resumível e com teto de 5 MiB.
+
+### Regras de aplicação — nada de marcação se perde
+
+- Toda escrita da descida passa por `ChronoRepository.applyFromSummus` / `applyPull` — grava
+  direto nos DAOs **sem** enfileirar na `sync_outbox` (o seam anti-eco: sem isso, a mudança
+  recebida do servidor voltaria para cima no próximo sync).
+- Correção de ponto é sempre **update** atrás de uma guarda de revisão: só aplica se a
+  `revision` recebida for maior que `punch.serverRevision` local — reenvio da mesma correção
+  não reaplica, correção fora de ordem não regride o ponto.
+- `deleted:true` (funcionário ou ponto) é sempre soft-delete — a linha continua no banco.
+- A migration que introduziu o índice único de `uid` (Room v5) resolve duplicata legada
+  **reatribuindo** um uid novo à linha mais nova, nunca com `DELETE`.
+- `store.managedBySummus = true` (setado quando o pull traz `store`) trava latitude, longitude
+  e raio como somente-leitura na tela de Configurações do app — esses campos vêm do backoffice
+  e seriam sobrescritos no próximo pull mesmo se editados localmente.
 
 ## 9. Fora do contrato
 

@@ -20,6 +20,8 @@ const val ADMIN_PASSWORD_KEY = "admin_password"
 const val DEFAULT_ADMIN_PASSWORD = "1234"
 const val SUMUS_URL_KEY = "summus_url"
 const val SUMUS_API_KEY = "summus_api_key"
+// Cursor da descida (serverTime do último pull). Lido/gravado por repo.setting/setSetting.
+const val SUMUS_PULL_SINCE_KEY = "summus_pull_since"
 
 class ChronoViewModel(app: Application) : AndroidViewModel(app) {
     val repo = ChronoRepository(app)
@@ -69,7 +71,8 @@ class ChronoViewModel(app: Application) : AndroidViewModel(app) {
                 SyncOutcome.Ocioso -> "Nada a sincronizar."
                 SyncOutcome.JaRodando -> "Sincronização já em andamento."
                 is SyncOutcome.Ok ->
-                        "Sincronizado: ${o.funcionarios} funcionários, ${o.pontos} pontos, ${o.fotos} fotos."
+                        "Sincronizado: ${o.funcionarios} funcionários, ${o.pontos} pontos, ${o.fotos} fotos." +
+                                if (o.recebidos > 0) " Recebidos: ${o.recebidos}." else ""
                 is SyncOutcome.Falha -> "Falha na sincronização: ${o.mensagem}"
             }
 
@@ -95,10 +98,19 @@ class ChronoViewModel(app: Application) : AndroidViewModel(app) {
     fun updatePunch(p: Punch) = viewModelScope.launch { repo.updatePunch(p) }
     fun deletePunch(p: Punch) = viewModelScope.launch { repo.deletePunch(p) }
 
+    // copy (não Store novo): salvar pela tela não pode zerar uid/managedBySummus da descida.
     fun saveStore(name: String, lat: Double, lon: Double, radius: Float) =
             viewModelScope.launch {
                 val existing = repo.store()
-                repo.saveStore(Store(existing?.id ?: 0, name, lat, lon, radius))
+                repo.saveStore(
+                        existing?.copy(
+                                name = name,
+                                latitude = lat,
+                                longitude = lon,
+                                radius = radius
+                        )
+                                ?: Store(0, name, lat, lon, radius)
+                )
             }
 
     suspend fun adminPassword(): String = repo.setting(ADMIN_PASSWORD_KEY, DEFAULT_ADMIN_PASSWORD)

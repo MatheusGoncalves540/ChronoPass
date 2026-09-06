@@ -17,7 +17,11 @@ import org.json.JSONObject
  */
 object OutboxPayloads {
 
-    /** Referência de foto enfileirada como PHOTO (os bytes ficam no aparelho até o dreno). */
+    /**
+     * Referência de foto enfileirada como PHOTO (os bytes ficam no aparelho até o dreno).
+     * punchUid = chave do lote 2: uid do ponto, ou "employee.<uid>" p/ foto de funcionário (o
+     * nome do campo/JSON fica como está — renomear quebraria payload já enfileirado no aparelho).
+     */
     data class PhotoRef(val punchUid: String, val photoPath: String)
 
     fun employeeJson(e: Employee) =
@@ -26,6 +30,7 @@ object OutboxPayloads {
                     .put("uid", e.uid ?: JSONObject.NULL)
                     .put("name", e.name)
                     .put("code", e.code)
+                    .put("photoPath", e.photoPath ?: JSONObject.NULL)
                     .put("active", e.active)
                     .put("deleted", e.deleted)
                     .put("createdAt", e.createdAt)

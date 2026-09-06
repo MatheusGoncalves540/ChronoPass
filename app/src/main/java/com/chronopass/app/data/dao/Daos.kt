@@ -17,6 +17,10 @@ interface EmployeeDao {
 
     @Query("SELECT * FROM employee WHERE id = :id") suspend fun byId(id: Long): Employee?
 
+    // Descida do Summus: casa pelo uid (único desde a v5).
+    @Query("SELECT * FROM employee WHERE uid = :uid")
+    suspend fun employeeByUid(uid: String): Employee?
+
     @Query("SELECT * FROM employee") suspend fun allOnce(): List<Employee>
 
     @Query("SELECT COUNT(*) FROM employee WHERE deleted = 1") suspend fun trashCount(): Int
@@ -51,6 +55,9 @@ interface PunchDao {
 
     @Query("SELECT * FROM punch WHERE deleted = 0 ORDER BY timestamp")
     suspend fun allActiveOnce(): List<Punch>
+
+    // Descida do Summus: casa a correção pelo uid (único desde a v5).
+    @Query("SELECT * FROM punch WHERE uid = :uid") suspend fun punchByUid(uid: String): Punch?
 
     @Query("SELECT COUNT(*) FROM punch WHERE deleted = 1") suspend fun trashCount(): Int
 
@@ -91,10 +98,12 @@ abstract class OutboxDao {
     @Query("DELETE FROM sync_outbox WHERE id IN (:ids)")
     abstract suspend fun deleteAll(ids: List<Long>)
 
+    // lastAttemptAt é a base do backoff (v5): sem ela o intervalo media de createdAt e um item
+    // velho voltava a cada sync.
     @Query(
-            "UPDATE sync_outbox SET status='FAILED', tentativas=tentativas+1, ultimoErro=:erro WHERE id IN (:ids)"
+            "UPDATE sync_outbox SET status='FAILED', tentativas=tentativas+1, ultimoErro=:erro, lastAttemptAt=:agora WHERE id IN (:ids)"
     )
-    abstract suspend fun markFailed(ids: List<Long>, erro: String)
+    abstract suspend fun markFailed(ids: List<Long>, erro: String, agora: Long)
 
     // Lote 1 (metadados): funcionários + pontos pendentes ou falhos (backoff filtra em memória no
     // dreno).
