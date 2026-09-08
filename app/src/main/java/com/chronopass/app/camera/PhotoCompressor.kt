@@ -17,7 +17,15 @@ object PhotoCompressor {
             Bitmap.CompressFormat.WEBP_LOSSY
         else
             @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
-        val bitmap = BitmapFactory.decodeFile(raw.path)
+        // Duas passadas: a 1ª só lê as dimensões (inJustDecodeBounds não aloca pixel algum), a 2ª
+        // decodifica já subamostrado — antes reencodava na resolução cheia do sensor.
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(raw.path, bounds)
+        val opts =
+            BitmapFactory.Options().apply {
+                inSampleSize = inSampleSize(bounds.outWidth, bounds.outHeight)
+            }
+        val bitmap = BitmapFactory.decodeFile(raw.path, opts)
         val out = File(raw.parentFile, raw.nameWithoutExtension + ".webp")
         FileOutputStream(out).use { bitmap.compress(format, QUALITY, it) }
         bitmap.recycle()

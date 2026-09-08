@@ -34,12 +34,26 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
     var lon by remember(store) { mutableStateOf(store?.longitude?.toString() ?: "") }
     var radius by remember(store) { mutableStateOf(store?.radius?.toString() ?: "100") }
     var msg by remember { mutableStateOf<String?>(null) }
+    // Loja gerida pelo Summus: coordenada/raio descem no pull e seriam sobrescritos no próximo —
+    // editar aqui só daria a impressão de ter mudado algo.
+    val gerida = store?.managedBySummus == true
 
     var newPw by remember { mutableStateOf("") }
+    var sumusUrl by remember { mutableStateOf("") }
+    var sumusHasKey by remember { mutableStateOf(false) }
+    var sumusKeyInput by remember { mutableStateOf("") }
+    var sumusEditing by remember { mutableStateOf(false) }
 
     var trashCount by remember { mutableStateOf(0) }
     var confirmTrash by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { vm.loadTrashCount { trashCount = it } }
+    LaunchedEffect(Unit) {
+        vm.loadTrashCount { trashCount = it }
+        vm.loadSumusConfig { url, hasKey ->
+            sumusUrl = url
+            sumusHasKey = hasKey
+            sumusEditing = false
+        }
+    }
 
     val versionName = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
@@ -79,6 +93,13 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
             )
+            if (gerida) {
+                Text(
+                        "Loja gerida pelo SummusBackoffice: coordenada e raio vêm do backoffice e são atualizados a cada sincronização.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                )
+            }
             OutlinedTextField(
                     name,
                     { name = it },
@@ -90,6 +111,7 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     lat,
                     { lat = it },
                     label = { Text("Latitude") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -98,6 +120,7 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     lon,
                     { lon = it },
                     label = { Text("Longitude") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
@@ -106,22 +129,25 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     radius,
                     { radius = it },
                     label = { Text("Raio permitido (metros)") },
+                    enabled = !gerida,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
             )
             Row {
-                OutlinedButton(
-                        onClick = {
-                            locPerm.launch(
-                                    arrayOf(
-                                            Manifest.permission.ACCESS_FINE_LOCATION,
-                                            Manifest.permission.ACCESS_COARSE_LOCATION
-                                    )
-                            )
-                        }
-                ) { Text("Usar local atual") }
-                Spacer(Modifier.width(8.dp))
+                if (!gerida) {
+                    OutlinedButton(
+                            onClick = {
+                                locPerm.launch(
+                                        arrayOf(
+                                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                                Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                )
+                            }
+                    ) { Text("Usar local atual") }
+                    Spacer(Modifier.width(8.dp))
+                }
                 Button(
                         onClick = {
                             val la = lat.toDoubleOrNull()
@@ -159,6 +185,97 @@ fun SettingsScreen(vm: ChronoViewModel, nav: NavController) {
                     modifier = Modifier.fillMaxWidth()
             ) { Text("ALTERAR SENHA") }
 
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            Text(
+                    "SummusBackoffice",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                    "URL base do backoffice. O app adiciona /api/integrations/chronopass/sync (batidas) e /photos (fotos).",
+                    style = MaterialTheme.typography.bodySmall
+            )
+            if (sumusHasKey && !sumusEditing) {
+                OutlinedTextField(
+                        value = sumusUrl,
+                        onValueChange = {},
+                        enabled = false,
+                        label = { Text("URL base") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                        value = "••••••••••",
+                        onValueChange = {},
+                        enabled = false,
+                        label = { Text("api-key") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                        onClick = {
+                            sumusKeyInput = ""
+                            sumusEditing = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                ) { Text("SOBRESCREVER") }
+                OutlinedButton(
+                        onClick = { vm.syncNow { msg = it } },
+                        modifier = Modifier.fillMaxWidth()
+                ) { Text("SINCRONIZAR AGORA") }
+            } else {
+                OutlinedTextField(
+                        value = sumusUrl,
+                        onValueChange = { sumusUrl = it },
+                        label = { Text("URL base") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                        value = sumusKeyInput,
+                        onValueChange = { sumusKeyInput = it },
+                        label = { Text("api-key") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth()
+                )
+                Row {
+                    if (sumusHasKey) {
+                        OutlinedButton(
+                                onClick = {
+                                    sumusEditing = false
+                                    sumusKeyInput = ""
+                                    vm.loadSumusConfig { url, hasKey ->
+                                        sumusUrl = url
+                                        sumusHasKey = hasKey
+                                    }
+                                }
+                        ) { Text("Cancelar") }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Button(
+                            onClick = {
+                                val url = sumusUrl.trim()
+                                val key = sumusKeyInput.trim()
+                                when {
+                                    !url.startsWith("http://") && !url.startsWith("https://") ->
+                                            msg = "URL deve começar com http:// ou https://."
+                                    key.isEmpty() -> msg = "Digite a api-key."
+                                    else -> {
+                                        vm.saveSumusConfig(url, key)
+                                        sumusUrl = url
+                                        sumusHasKey = true
+                                        sumusEditing = false
+                                        sumusKeyInput = ""
+                                        msg = "Configuração Summus salva."
+                                    }
+                                }
+                            }
+                    ) { Text("SALVAR") }
+                }
+            }
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Text(
                     "Lixeira",

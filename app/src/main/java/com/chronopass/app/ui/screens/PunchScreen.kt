@@ -23,6 +23,7 @@ import com.chronopass.app.location.getCurrentFix
 import com.chronopass.app.reports.TimeUtil
 import com.chronopass.app.ui.ChronoViewModel
 import java.io.File
+import java.util.UUID
 
 private enum class Step { CAPTURE, CONFIRM, DONE }
 
@@ -37,6 +38,8 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
     var fix by remember { mutableStateOf<Fix?>(null) }
     var locating by remember { mutableStateOf(true) }
     var timestamp by remember { mutableStateOf(0L) }
+    // uid gerado antes da captura: o nome do arquivo da foto carrega o uid do ponto.
+    val punchUid = remember { UUID.randomUUID().toString() }
     var hasCameraPermission by remember { mutableStateOf(false) }
     val store by vm.store.collectAsState()
 
@@ -84,7 +87,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                     }
                     Spacer(Modifier.height(8.dp))
                     if (hasCameraPermission) {
-                        CameraCapture(Modifier.weight(1f).fillMaxWidth()) { file ->
+                        CameraCapture(Modifier.weight(1f).fillMaxWidth(), tag = punchUid) { file ->
                             photo = file
                             timestamp = System.currentTimeMillis()
                             step = Step.CONFIRM
@@ -131,6 +134,7 @@ fun PunchScreen(vm: ChronoViewModel, nav: NavController, employeeId: Long) {
                             val f2 = fix
                             vm.savePunch(
                                 Punch(
+                                    uid = punchUid,
                                     employeeId = employeeId, timestamp = timestamp, type = nextType,
                                     latitude = f2?.latitude, longitude = f2?.longitude,
                                     accuracy = f2?.accuracy, photoPath = photo?.absolutePath

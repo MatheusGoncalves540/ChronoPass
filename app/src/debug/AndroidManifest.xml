@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Só DEBUG: permite http claro p/ testar contra backend local (ex.: http://10.0.2.2:3001).
+         Release não herda isto — produção segue https-only. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>
