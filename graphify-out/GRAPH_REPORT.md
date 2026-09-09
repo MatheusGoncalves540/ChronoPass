@@ -1,188 +1,174 @@
-# Graph Report - ChronoPass  (2026-08-28)
+# Graph Report - ChronoPass  (2026-09-05)
 
 ## Corpus Check
-- 40 files · ~22,506 words
+- 55 files · ~35,074 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 399 nodes · 560 edges · 46 communities (22 shown, 24 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.83)
+- 621 nodes · 1223 edges · 28 communities (23 shown, 5 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 43 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `98324dc7`
+- Built from commit: `a28fc860`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- App
-- Store
+- ChronoViewModel
+- Employee
 - Tabela "Onde está cada item do MVP"
 - Punch
-- Pipeline de Reconhecimento Facial
-- ChronoViewModel
-- punch Entity (Simple)
+- OutboxDao
+- ChronoPass — Manual Operacional
 - ChronoRepository
-- PunchScreen
-- TimeUtil
+- ChronoPass — Guia Técnico (codebase)
+- PunchScreen.kt
+- FakeEmployeeDao
 - UpdateChecker
-- .loadJson
-- rememberLogo
-- CameraCapture
-- ReportPeriod
-- ReportPeriodTest
-- PdfExport
-- RecordsScreen
-- PhotoStore
-- ChronoPass (Simplified Plan)
+- BackupManager
+- .parse
+- TimeUtil
+- ReportsScreen.kt
+- SummusClient
+- ChronoDatabase
 - gradlew
-- Estratégia de Testes (Unit/Room/Segurança/Compose/Carga/Regressão)
+- OutboxPayloads
 - ic_launcher_foreground.png
-- Registro Manual Após Falhas (source=ADMIN)
-- FaceEmbedder Interface
-- Gradle Module :core-report
+- SummusContractTest
 - Boi do Forte Logo (Center Carnes)
-- Painel Admin (Telas)
-- AppContainer (Manual DI)
-- Backup Cifrado (.cpbk)
-- Modo Funcionário (Telas)
-- app_setting Entity
-- Fases de Implementação
-- Kotlin + Jetpack Compose Native Architecture
-- Gradle Module :app
-- Regra de Interfaces com Paging 3 / Sem Truncamento
-- Criptografia das Fotos (AES-GCM)
-- Teste de Carga de UI (10k funcionários / 200k marcações)
 - AGENTS.md
-- PhotoCompressor
+- inSampleSize
 - CLAUDE.md
-- UpdateCheckerTest
 
 ## God Nodes (most connected - your core abstractions)
-1. `Punch` - 29 edges
-2. `ChronoRepository` - 26 edges
-3. `ChronoViewModel` - 25 edges
-4. `Employee` - 20 edges
-5. `Tabela "Onde está cada item do MVP"` - 19 edges
-6. `TimeUtil` - 14 edges
-7. `EmployeeDao` - 12 edges
-8. `PunchDao` - 12 edges
-9. `PdfExport` - 12 edges
-10. `Row` - 11 edges
+1. `Punch` - 61 edges
+2. `Employee` - 60 edges
+3. `ChronoRepository` - 47 edges
+4. `ChronoViewModel` - 39 edges
+5. `Store` - 24 edges
+6. `PunchType` - 22 edges
+7. `FakeEmployeeDao` - 21 edges
+8. `FakePunchDao` - 21 edges
+9. `Tabela "Onde está cada item do MVP"` - 19 edges
+10. `TimeUtil` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `employee Entity (Simple)` --semantically_similar_to--> `employee Entity`  [INFERRED] [semantically similar]
-  PLANO.md → PLANO-FUTURO.md
-- `punch Entity (Simple)` --semantically_similar_to--> `punch Entity`  [INFERRED] [semantically similar]
-  PLANO.md → PLANO-FUTURO.md
-- `Segurança Proporcional (sem Argon2id/biometria/liveness)` --conceptually_related_to--> `MobileFaceNet TFLite Model`  [INFERRED]
-  PLANO.md → PLANO-FUTURO.md
-- `Segurança Proporcional (sem Argon2id/biometria/liveness)` --conceptually_related_to--> `Senha do Gerente (Argon2id)`  [INFERRED]
-  PLANO.md → PLANO-FUTURO.md
-- `ChronoPass (Simplified Plan)` --conceptually_related_to--> `ChronoPass (Facial Recognition Plan)`  [INFERRED]
-  PLANO.md → PLANO-FUTURO.md
+- `Configuração do Ícone do App` --conceptually_related_to--> `ic_launcher_foreground.png (Ícone do App)`  [INFERRED]
+  app/src/main/assets/LEIA-ME.txt → README.md
+- `Configuração da Logo (logo.png)` --conceptually_related_to--> `logo.png (Logo da Loja)`  [INFERRED]
+  app/src/main/assets/LEIA-ME.txt → README.md
+- `App()` --calls--> `AdminScreen()`  [INFERRED]
+  app/src/main/java/com/chronopass/app/MainActivity.kt → app/src/main/java/com/chronopass/app/ui/screens/AdminScreen.kt
+- `App()` --calls--> `EmployeesScreen()`  [INFERRED]
+  app/src/main/java/com/chronopass/app/MainActivity.kt → app/src/main/java/com/chronopass/app/ui/screens/EmployeesScreen.kt
+- `App()` --calls--> `HomeScreen()`  [INFERRED]
+  app/src/main/java/com/chronopass/app/MainActivity.kt → app/src/main/java/com/chronopass/app/ui/screens/HomeScreen.kt
 
 ## Import Cycles
 - None detected.
 
-## Hyperedges (group relationships)
-- **Gradle Modules (:app, :core-data, :core-face, :core-report)** — plano_futuro_module_app, plano_futuro_module_core_data, plano_futuro_module_core_face, plano_futuro_module_core_report [EXTRACTED 1.00]
-- **Reporting & Backup Data Portability Flow** — plano_relatorios, plano_exportacao_csv, plano_exportacao_pdf, plano_backup_zip [INFERRED 0.75]
-- **Arquitetura de Criptografia** — plano_futuro_db_encryption, plano_futuro_photo_encryption, plano_futuro_admin_password_argon2id, plano_futuro_backup_encryption_cpbk, plano_futuro_login_attempt_backoff [EXTRACTED 1.00]
+## Communities (28 total, 5 thin omitted)
 
-## Communities (46 total, 24 thin omitted)
+### Community 0 - "ChronoViewModel"
+Cohesion: 0.09
+Nodes (12): AndroidViewModel, ChronoViewModel, Bitmap, Context, LogoAsset, rememberLogo(), AdminScreen(), NavController (+4 more)
 
-### Community 0 - "App"
-Cohesion: 0.12
-Nodes (13): App(), MainActivity, AdminScreen(), NavController, NavController, ReportsScreen(), slug(), today() (+5 more)
-
-### Community 1 - "Store"
-Cohesion: 0.07
-Nodes (14): SettingsDao, StoreDao, ChronoDatabase, Converters, get(), Context, migrate(), AppSetting (+6 more)
+### Community 1 - "Employee"
+Cohesion: 0.09
+Nodes (10): EmployeeDao, Flow, StoreDao, Employee, Store, JSONObject, PhotoPayload, SummusPayloads (+2 more)
 
 ### Community 2 - "Tabela "Onde está cada item do MVP""
 Cohesion: 0.08
-Nodes (27): BackupManager.kt, CameraCapture.kt, PhotoStore.kt, data/dao, data/database (Room DB), Store Entity (data/entities), PunchRules.kt, data/repo (+19 more)
+Nodes (28): LEIA-ME.txt (Guia de Imagens), Configuração do Ícone do App, ic_launcher_background.xml (Cor de Fundo do Ícone), Configuração da Logo (logo.png), Scripts de Rebuild (dev.bat/apk.bat/gradlew assembleRelease), BackupManager.kt, CameraCapture.kt, PhotoStore.kt (+20 more)
 
 ### Community 3 - "Punch"
-Cohesion: 0.09
-Nodes (5): PunchDao, Punch, PunchRules, CsvExport, PunchRulesTest
+Cohesion: 0.05
+Nodes (11): PunchDao, Punch, PunchType, IN, OUT, PunchRules, CsvExport, PunchRulesTest (+3 more)
 
-### Community 4 - "Pipeline de Reconhecimento Facial"
-Cohesion: 0.14
-Nodes (21): LEIA-ME.txt (Guia de Imagens), Configuração do Ícone do App, ic_launcher_background.xml (Cor de Fundo do Ícone), Configuração da Logo (logo.png), Scripts de Rebuild (dev.bat/apk.bat/gradlew assembleRelease), Senha do Gerente (Argon2id), CameraX, admin_credential Entity (+13 more)
+### Community 4 - "OutboxDao"
+Cohesion: 0.13
+Nodes (3): OutboxDao, OutboxItem, SyncRulesTest
 
-### Community 5 - "ChronoViewModel"
-Cohesion: 0.09
-Nodes (6): AndroidViewModel, EmployeeDao, Employee, ChronoViewModel, Flow, StateFlow
+### Community 5 - "ChronoPass — Manual Operacional"
+Cohesion: 0.11
+Nodes (18): 10. Resumo em uma frase, 1. O que é o ChronoPass, 2. Instalação e primeira configuração, 3. Dia a dia: bater o ponto, 4. Área do gerente, 5. Relatórios, 6. Onde ficam as fotos e os dados, 7. Backup: exportar e restaurar (+10 more)
 
-### Community 6 - "punch Entity (Simple)"
+### Community 6 - "ChronoRepository"
+Cohesion: 0.07
+Nodes (13): Context, PhotoStore, ChronoRepository, photoHashKey(), Descida, Falha, Inativo, JaRodando (+5 more)
+
+### Community 7 - "ChronoPass — Guia Técnico (codebase)"
+Cohesion: 0.05
+Nodes (37): 10. Ordem de implementação (modo Act), 1. Objetivo, 2. Configuração no app (feature em Configurações), 3. Identidade do aparelho, 4. Id externo das entidades — uid (UUID), 5. Lotes de envio, 6. Regras que evitam perda, 7. Fila de sincronização (`sync_outbox`) (+29 more)
+
+### Community 8 - "PunchScreen.kt"
 Cohesion: 0.10
-Nodes (21): Room + SQLite (sem SQLCipher), Regra de Próxima Marcação (Entrada/Saída), employee Entity (Simple), punch Entity (Simple), Detecção de Relógio Adulterado (clockSuspect), Criptografia do Banco (SQLCipher + Keystore Envelope), employee Entity, face_template Entity (+13 more)
+Nodes (30): await(), CameraCapture(), Context, T, takePhoto(), ImageCapture, awaitOrNull(), distanceMeters() (+22 more)
 
-### Community 8 - "PunchScreen"
-Cohesion: 0.16
-Nodes (17): awaitOrNull(), distanceMeters(), Fix, freshLocation(), getCurrentFix(), Context, T, lastLocation() (+9 more)
+### Community 9 - "FakeEmployeeDao"
+Cohesion: 0.06
+Nodes (13): SettingsDao, AppSetting, Pull, SummusEmployee, SummusPunchCorrection, SyncRules, ApplyFromSummusTest, FakeEmployeeDao (+5 more)
 
 ### Community 10 - "UpdateChecker"
-Cohesion: 0.23
-Nodes (9): Context, UpdateAvailableDialog(), UpdateChecker, UpdateInfo, UpdatePhase, Ask, Downloading, NeedPermission (+1 more)
+Cohesion: 0.10
+Nodes (17): App(), MainActivity, NavController, SettingsScreen(), ChronoTheme(), Context, UpdateAvailableDialog(), UpdateChecker (+9 more)
 
-### Community 11 - ".loadJson"
-Cohesion: 0.40
+### Community 11 - "BackupManager"
+Cohesion: 0.39
 Nodes (3): BackupManager, Context, JSONObject
 
-### Community 12 - "rememberLogo"
-Cohesion: 0.24
-Nodes (7): Bitmap, Context, LogoAsset, rememberLogo(), HomeScreen(), NavController, ImageBitmap
+### Community 13 - ".parse"
+Cohesion: 0.27
+Nodes (7): Falha, JSONObject, T, Ok, PullPayloads, PullResult, StorePull
 
-### Community 13 - "CameraCapture"
+### Community 14 - "TimeUtil"
+Cohesion: 0.09
+Nodes (8): ReportPeriod, CUSTOM, LAST_30, LAST_7, LAST_MONTH, THIS_MONTH, TimeUtil, ReportPeriodTest
+
+### Community 16 - "ReportsScreen.kt"
+Cohesion: 0.13
+Nodes (19): android, Bitmap, PdfExport, Row, EmployeePickerDialog(), AddPunchDialog(), NavController, Period (+11 more)
+
+### Community 17 - "SummusClient"
+Cohesion: 0.15
+Nodes (12): Ack, Erro, GetResult, HttpError, Context, JSONObject, Ok, PostResult (+4 more)
+
+### Community 19 - "ChronoDatabase"
 Cohesion: 0.19
-Nodes (12): await(), CameraCapture(), Context, T, takePhoto(), CameraDialog(), EmployeeDialog(), EmployeesScreen() (+4 more)
-
-### Community 14 - "ReportPeriod"
-Cohesion: 0.25
-Nodes (6): ReportPeriod, CUSTOM, LAST_30, LAST_7, LAST_MONTH, THIS_MONTH
-
-### Community 16 - "PdfExport"
-Cohesion: 0.29
-Nodes (6): android, Bitmap, PdfExport, Row, EmployeePickerDialog(), Paint
-
-### Community 17 - "RecordsScreen"
-Cohesion: 0.24
-Nodes (9): AddPunchDialog(), NavController, Period, ALL, TODAY, WEEK, YESTERDAY, PunchDetailDialog() (+1 more)
-
-### Community 19 - "ChronoPass (Simplified Plan)"
-Cohesion: 0.40
-Nodes (5): ChronoPass (Simplified Plan), ChronoPass (Facial Recognition Plan), face_recognition (dlib) Library, index.py Python Prototype, Princípio do Projeto (Livro de Ponto Digital)
+Nodes (9): backfillUid(), ChronoDatabase, Converters, ids(), Context, novoUid(), sanearUid(), RoomDatabase (+1 more)
 
 ### Community 20 - "gradlew"
 Cohesion: 0.83
 Nodes (3): gradlew script, die(), warn()
 
-### Community 21 - "Estratégia de Testes (Unit/Room/Segurança/Compose/Carga/Regressão)"
-Cohesion: 0.67
-Nodes (3): TDD em Lógica Pura, Estratégia de Testes (Unit/Room/Segurança/Compose/Carga/Regressão), Comandos de Verificação (gradlew)
+### Community 21 - "OutboxPayloads"
+Cohesion: 0.31
+Nodes (3): JSONObject, OutboxPayloads, PhotoRef
+
+### Community 43 - "inSampleSize"
+Cohesion: 0.24
+Nodes (3): inSampleSize(), PhotoCompressor, ImageScaleTest
 
 ## Knowledge Gaps
-- **65 isolated node(s):** `IN`, `OUT`, `THIS_MONTH`, `LAST_MONTH`, `LAST_7` (+60 more)
+- **89 isolated node(s):** `IN`, `OUT`, `THIS_MONTH`, `LAST_MONTH`, `LAST_7` (+84 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Punch` connect `Punch` to `Store`, `ChronoViewModel`, `ChronoRepository`, `PunchScreen`, `.loadJson`, `PdfExport`, `RecordsScreen`?**
-  _High betweenness centrality (0.144) - this node is a cross-community bridge._
-- **Why does `ChronoViewModel` connect `ChronoViewModel` to `App`, `Store`, `PunchScreen`, `rememberLogo`, `CameraCapture`, `RecordsScreen`?**
-  _High betweenness centrality (0.097) - this node is a cross-community bridge._
-- **Why does `PunchScreen()` connect `PunchScreen` to `App`, `Punch`, `ChronoViewModel`, `CameraCapture`, `PdfExport`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
-- **Are the 6 inferred relationships involving `Punch` (e.g. with `PunchScreen()` and `.handlesDuplicateAdjacentPunch_withoutLosingTheGap()`) actually correct?**
-  _`Punch` has 6 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 4 inferred relationships involving `Tabela "Onde está cada item do MVP"` (e.g. with `EmployeesScreen.kt` and `RecordsScreen.kt`) actually correct?**
-  _`Tabela "Onde está cada item do MVP"` has 4 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Employee` connect `Employee` to `ChronoViewModel`, `Punch`, `OutboxDao`, `ChronoRepository`, `PunchScreen.kt`, `FakeEmployeeDao`, `BackupManager`, `ReportsScreen.kt`, `OutboxPayloads`, `SummusContractTest`?**
+  _High betweenness centrality (0.170) - this node is a cross-community bridge._
+- **Why does `ChronoViewModel` connect `ChronoViewModel` to `Employee`, `Punch`, `ChronoRepository`, `PunchScreen.kt`, `UpdateChecker`, `ReportsScreen.kt`?**
+  _High betweenness centrality (0.149) - this node is a cross-community bridge._
+- **Why does `Punch` connect `Punch` to `ChronoViewModel`, `Employee`, `OutboxDao`, `ChronoRepository`, `PunchScreen.kt`, `FakeEmployeeDao`, `BackupManager`, `ReportsScreen.kt`, `OutboxPayloads`, `SummusContractTest`?**
+  _High betweenness centrality (0.146) - this node is a cross-community bridge._
+- **Are the 8 inferred relationships involving `ChronoRepository` (e.g. with `.applyFromSummus_naoEnfileiraNaOutbox()` and `.applyPullAvancaCursorEMarcaLojaGerida()`) actually correct?**
+  _`ChronoRepository` has 8 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `IN`, `OUT`, `THIS_MONTH` to the rest of the system?**
-  _65 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `App` be split into smaller, more focused modules?**
-  _Cohesion score 0.12280701754385964 - nodes in this community are weakly interconnected._
+  _89 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `ChronoViewModel` be split into smaller, more focused modules?**
+  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
+- **Should `Employee` be split into smaller, more focused modules?**
+  _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._

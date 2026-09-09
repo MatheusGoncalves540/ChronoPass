@@ -28,6 +28,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun CameraCapture(
         modifier: Modifier = Modifier,
+        // tag do arquivo: a tela de ponto passa o uid da batida (nome único por foto).
+        tag: String = java.util.UUID.randomUUID().toString(),
         onPhoto: (File) -> Unit,
 ) {
     val context = LocalContext.current
@@ -65,6 +67,7 @@ fun CameraCapture(
                             imageCapture,
                             scope,
                             ContextCompat.getMainExecutor(context),
+                            tag,
                             onPhoto
                     )
                 },
@@ -78,9 +81,10 @@ private fun takePhoto(
         imageCapture: ImageCapture,
         scope: CoroutineScope,
         executor: Executor,
+        tag: String,
         onPhoto: (File) -> Unit,
 ) {
-    val raw = PhotoStore.newRawFile(context)
+    val raw = PhotoStore.newRawFile(context, tag)
     val options = ImageCapture.OutputFileOptions.Builder(raw).build()
     imageCapture.takePicture(
             options,
