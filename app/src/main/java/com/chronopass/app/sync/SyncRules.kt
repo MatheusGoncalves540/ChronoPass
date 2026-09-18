@@ -27,6 +27,8 @@ data class SummusEmployee(
         val active: Boolean = true,
         val deleted: Boolean = false,
         val photoHash: String? = null,
+        // uids locais que o vínculo declarou serem a mesma pessoa: as batidas vêm para cá.
+        val mergeUids: List<String> = emptyList(),
 )
 
 /** Correção de ponto vinda da descida. `revision` é a guarda de ordenação. */

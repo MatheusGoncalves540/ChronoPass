@@ -68,12 +68,20 @@ fun EmployeesScreen(vm: ChronoViewModel, nav: NavController) {
     }
 
     if (creating)
-            EmployeeDialog(null, onDismiss = { creating = false }) { name, code, _, photoPath ->
+            EmployeeDialog(
+                    null,
+                    nomesEmUso = employees.map { it.name },
+                    onDismiss = { creating = false }
+            ) { name, code, _, photoPath ->
                 vm.addEmployee(name, code, photoPath)
                 creating = false
             }
     editing?.let { e ->
-        EmployeeDialog(e, onDismiss = { editing = null }) { name, code, active, photoPath ->
+        EmployeeDialog(
+                e,
+                nomesEmUso = employees.filter { it.id != e.id }.map { it.name },
+                onDismiss = { editing = null }
+        ) { name, code, active, photoPath ->
             vm.updateEmployee(
                     e.copy(
                             name = name.trim(),
@@ -112,11 +120,16 @@ fun EmployeesScreen(vm: ChronoViewModel, nav: NavController) {
 @Composable
 private fun EmployeeDialog(
         employee: Employee?,
+        nomesEmUso: List<String>,
         onDismiss: () -> Unit,
         onSave: (name: String, code: String, active: Boolean, photoPath: String?) -> Unit
 ) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(employee?.name ?: "") }
+    // ponytail: só trim + ignoreCase, sem dobra de acento ("João" x "Joao" passam) — a dobra
+    // completa vive no servidor (normalizeNameForMatch). vm.allEmployees não inclui a lixeira,
+    // de propósito. Só a tela: a descida do Summus pode trazer homônimo (é o que o merge resolve).
+    val nomeRepetido = nomesEmUso.any { it.trim().equals(name.trim(), ignoreCase = true) }
     var code by remember { mutableStateOf(employee?.code ?: "") }
     var active by remember { mutableStateOf(employee?.active ?: true) }
     var photoPath by remember { mutableStateOf(employee?.photoPath) }
@@ -151,6 +164,10 @@ private fun EmployeeDialog(
                                 value = name,
                                 onValueChange = { name = it },
                                 label = { Text("Nome") },
+                                isError = nomeRepetido,
+                                supportingText = {
+                                    if (nomeRepetido) Text("Já existe um funcionário com esse nome")
+                                },
                                 singleLine = true
                         )
                         Spacer(Modifier.height(8.dp))
@@ -195,7 +212,7 @@ private fun EmployeeDialog(
                 },
                 confirmButton = {
                     TextButton(
-                            enabled = name.isNotBlank(),
+                            enabled = name.isNotBlank() && !nomeRepetido,
                             onClick = { onSave(name, code, active, photoPath) }
                     ) { Text("SALVAR") }
                 },

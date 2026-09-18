@@ -153,12 +153,18 @@ internal constructor(
             withContext(Dispatchers.IO) {
                 for (s in funcionarios) {
                     val local = employees.employeeByUid(s.uid)
-                    when {
-                        local != null -> employees.update(SyncRules.mergeEmployee(local, s))
-                        // Baixa desconhecida: nada a criar (não inventa linha na lixeira).
-                        s.deleted -> Unit
-                        else -> employees.insert(SyncRules.novoEmployee(s))
-                    }
+                    val canonica =
+                            when {
+                                local != null ->
+                                        SyncRules.mergeEmployee(local, s).also { employees.update(it) }
+                                // Baixa desconhecida: nada a criar (não inventa linha na lixeira).
+                                s.deleted -> continue
+                                else ->
+                                        SyncRules.novoEmployee(s).let {
+                                            it.copy(id = employees.insert(it))
+                                        }
+                            }
+                    absorver(canonica, s.mergeUids)
                 }
                 for (c in correcoes) {
                     // Ponto que este aparelho não tem (outro aparelho da loja): ignora.
@@ -167,6 +173,22 @@ internal constructor(
                     punches.update(SyncRules.mergePunch(local, c))
                 }
             }
+
+    // Vínculo confirmado no Summus: as batidas da linha duplicada passam para a canônica e a
+    // duplicada vai para a lixeira (nunca DELETE — vínculo errado continua recuperável).
+    // Idempotente: `dup.deleted` corta a segunda passada (o merge não sobe, então o uid segue
+    // vindo em mergeUids a cada pull).
+    private suspend fun absorver(canonica: Employee, uids: List<String>) {
+        var foto = canonica.photoPath
+        for (uid in uids) {
+            val dup = employees.employeeByUid(uid) ?: continue
+            if (dup.id == canonica.id || dup.deleted) continue
+            punches.repointEmployee(dup.id, canonica.id)
+            if (foto == null) foto = dup.photoPath
+            employees.softDelete(dup.id)
+        }
+        if (foto != canonica.photoPath) employees.update(canonica.copy(photoPath = foto))
+    }
 
     /**
      * Aplica um pull inteiro e SÓ ENTÃO avança o cursor.
