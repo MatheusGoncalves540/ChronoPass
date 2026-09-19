@@ -43,6 +43,23 @@ data class SummusPunchCorrection(
         val revision: Int,
 )
 
+/**
+ * Batida CRIADA no backoffice (não existe no aparelho). `employeeUids` são os candidatos a dono,
+ * em ordem de preferência (cadastros locais vinculados primeiro, uid do RH por último): vale o
+ * primeiro com linha VISÍVEL no aparelho. O `uid` da batida é a idempotência.
+ */
+data class SummusNewPunch(
+        val uid: String,
+        val employeeUids: List<String>,
+        val type: PunchType,
+        val timestamp: Long,
+        val editedBy: String? = null,
+        val editedAt: Long? = null,
+        val editReason: String? = null,
+        val deleted: Boolean = false,
+        val revision: Int = 1,
+)
+
 object SyncRules {
 
     // Teto de lote por rodada (SyncManager repete até esvaziar): um aparelho semanas offline não
