@@ -226,9 +226,14 @@ Envelope:
 - `since` vazio (primeiro pull, ou cursor perdido) = janela completa. Sem paginação de
   cadastro/loja (roster de uma loja é pequeno); só `punchCorrections` é recortado pelo `since`.
 - `mergeUids` (aditivo; ausente = lista vazia): uids de outros cadastros da MESMA loja que o
-  vínculo (aba Vínculos do Summus) declarou serem esta pessoa. O app move as batidas deles para a
-  linha canônica (`uid == rh_employees.id`) e manda a duplicada para a lixeira (`softDelete`),
-  dentro do seam anti-eco (nada é enfileirado). Idempotente; sem migration de Room.
+  vínculo (aba Vínculos do Summus) declarou serem esta pessoa. O app junta os cadastros numa
+  linha **visível** (`SyncRules.escolherSobrevivente`): o cadastro LOCAL da loja sobrevive e recebe
+  nome/cargo do Summus; as batidas das demais linhas passam para ele e as duplicatas ativas (em geral
+  a criada pela descida do RH) vão para a lixeira (`softDelete`). Nunca se absorve para dentro de
+  linha da lixeira (isso escondia o funcionário — bug da v2.2.2); se tudo já está na lixeira, respeita
+  a lixeira. Foto/hash continuam chegando pelo uid do RH e vão para a linha que sobrou (alias em
+  `app_settings`, `summus_alias.<uid>`). Tudo dentro do seam anti-eco (nada é enfileirado),
+  idempotente, sem migration de Room.
 - Envelope inválido, `schemaVersion` diferente do esperado ou `punchType` desconhecido derrubam
   o pull inteiro sem aplicar nada — cursor não avança, servidor reenvia a mesma janela.
 
