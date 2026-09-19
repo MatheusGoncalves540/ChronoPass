@@ -50,6 +50,10 @@ interface PunchDao {
     )
     suspend fun forEmployeeBetween(employeeId: Long, from: Long, to: Long): List<Punch>
 
+    // Merge de funcionário duplicado (vínculo no Summus): sem FK no schema, o UPDATE é direto.
+    @Query("UPDATE punch SET employeeId = :para WHERE employeeId = :de")
+    suspend fun repointEmployee(de: Long, para: Long)
+
     // Backup keeps everything (deleted included) so restore is faithful.
     @Query("SELECT * FROM punch ORDER BY timestamp") suspend fun allOnce(): List<Punch>
 

@@ -200,13 +200,86 @@ class ApplyFromSummusTest {
         assertTrue("foto que veio de cima não pode voltar", out.itens.isEmpty())
     }
 
+    @Test
+    fun mergeUids_moveBatidasParaCanonicaEMandaDuplicataParaLixeira() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João", photoPath = "/f/j.webp"),
+                                Employee(id = 2, uid = "rh-1", name = "João"),
+                        )
+                )
+        val pun =
+                FakePunchDao(
+                        mutableListOf(
+                                punch(uid = "p-1", revisao = 0, employeeId = 1),
+                                punch(uid = "p-2", revisao = 0, employeeId = 2),
+                        )
+                )
+        val out = FakeOutboxDao()
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), out)
+        val pull = listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
+
+        repo.applyFromSummus(funcionarios = pull)
+
+        assertEquals(listOf(2L, 2L), pun.rows.map { it.employeeId })
+        assertTrue(emp.rows.first { it.uid == "local-1" }.deleted)
+        assertFalse(emp.rows.first { it.uid == "rh-1" }.deleted)
+        // Foto de cadastro da local herdada: a canônica não tinha.
+        assertEquals("/f/j.webp", emp.rows.first { it.uid == "rh-1" }.photoPath)
+        assertTrue("merge não sobe (anti-eco)", out.itens.isEmpty())
+
+        // Segunda aplicação do mesmo pull: nada muda (idempotente).
+        val antes = pun.repoints
+        repo.applyFromSummus(funcionarios = pull)
+        assertEquals(antes, pun.repoints)
+        assertEquals(listOf(2L, 2L), pun.rows.map { it.employeeId })
+    }
+
+    @Test
+    fun mergeUids_canonicaNovaEhCriadaEDuplicataAbsorvidaNaMesmaPassada() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "local-1", name = "João")))
+        val pun = FakePunchDao(mutableListOf(punch(uid = "p-1", revisao = 0, employeeId = 1)))
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
+        )
+
+        val canonica = emp.rows.first { it.uid == "rh-1" }
+        assertEquals(canonica.id, pun.rows.single().employeeId)
+        assertTrue(emp.rows.first { it.uid == "local-1" }.deleted)
+    }
+
+    @Test
+    fun mergeUids_uidDesconhecidoOuIgualACanonicaEhIgnorado() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "rh-1", name = "João")))
+        val pun = FakePunchDao(mutableListOf(punch(uid = "p-1", revisao = 0, employeeId = 1)))
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(
+                                SummusEmployee(
+                                        uid = "rh-1",
+                                        name = "João",
+                                        mergeUids = listOf("rh-1", "de-outro-aparelho"),
+                                )
+                        )
+        )
+
+        assertEquals(0, pun.repoints)
+        assertFalse(emp.rows.single().deleted)
+    }
+
     // --- helpers ---
 
-    private fun punch(uid: String, revisao: Int) =
+    private fun punch(uid: String, revisao: Int, employeeId: Long = 1) =
             Punch(
                     id = 7,
                     uid = uid,
-                    employeeId = 1,
+                    employeeId = employeeId,
                     timestamp = 8 * 3_600_000L,
                     type = PunchType.IN,
                     serverRevision = revisao,
@@ -230,8 +303,9 @@ private class FakeEmployeeDao(val rows: MutableList<Employee> = mutableListOf())
     override suspend fun employeeByUid(uid: String) = rows.firstOrNull { it.uid == uid }
     override suspend fun byId(id: Long) = rows.firstOrNull { it.id == id }
     override fun insert(e: Employee): Long {
-        rows += e
-        return rows.size.toLong()
+        val id = if (e.id != 0L) e.id else (rows.maxOfOrNull { it.id } ?: 0L) + 1
+        rows += e.copy(id = id)
+        return id
     }
     override suspend fun update(e: Employee) {
         val i = rows.indexOfFirst { it.uid == e.uid }
@@ -242,13 +316,21 @@ private class FakeEmployeeDao(val rows: MutableList<Employee> = mutableListOf())
     override fun allIncludingDeleted(): Flow<List<Employee>> = flowOf(rows)
     override suspend fun allOnce() = rows.toList()
     override suspend fun trashCount() = 0
-    override suspend fun softDelete(id: Long) = Unit
+    override suspend fun softDelete(id: Long) {
+        val i = rows.indexOfFirst { it.id == id }
+        if (i >= 0) rows[i] = rows[i].copy(deleted = true)
+    }
     override suspend fun purgeDeleted() = Unit
 }
 
 private class FakePunchDao(val rows: MutableList<Punch> = mutableListOf()) : PunchDao {
     var updates = 0
+    var repoints = 0
     var falhaNoUpdate = false
+    override suspend fun repointEmployee(de: Long, para: Long) {
+        repoints++
+        rows.indices.forEach { if (rows[it].employeeId == de) rows[it] = rows[it].copy(employeeId = para) }
+    }
     override suspend fun punchByUid(uid: String) = rows.firstOrNull { it.uid == uid }
     override suspend fun update(p: Punch) {
         if (falhaNoUpdate) throw IllegalStateException("banco indisponível")

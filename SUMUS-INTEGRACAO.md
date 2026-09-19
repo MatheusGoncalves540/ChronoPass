@@ -211,7 +211,7 @@ Envelope:
   "serverTime": "2026-09-05T14:03:12.000Z",
   "store": { "uid": "<rh_stores.id>", "name": "...", "latitude": -23.5, "longitude": -46.6, "radiusMeters": 150.0 },
   "employees": [
-    { "uid": "<rh_employees.id>", "name": "...", "role": null, "active": true, "deleted": false, "photoHash": "<sha256|null>" }
+    { "uid": "<rh_employees.id>", "name": "...", "role": null, "active": true, "deleted": false, "photoHash": "<sha256|null>", "mergeUids": ["<uid-local-duplicado>"] }
   ],
   "punchCorrections": [
     { "uid": "...", "punchType": "in", "timestampUtc": "...", "editedBy": "...", "editedAt": "...",
@@ -225,6 +225,10 @@ Envelope:
   risco de relógio do aparelho.
 - `since` vazio (primeiro pull, ou cursor perdido) = janela completa. Sem paginação de
   cadastro/loja (roster de uma loja é pequeno); só `punchCorrections` é recortado pelo `since`.
+- `mergeUids` (aditivo; ausente = lista vazia): uids de outros cadastros da MESMA loja que o
+  vínculo (aba Vínculos do Summus) declarou serem esta pessoa. O app move as batidas deles para a
+  linha canônica (`uid == rh_employees.id`) e manda a duplicada para a lixeira (`softDelete`),
+  dentro do seam anti-eco (nada é enfileirado). Idempotente; sem migration de Room.
 - Envelope inválido, `schemaVersion` diferente do esperado ou `punchType` desconhecido derrubam
   o pull inteiro sem aplicar nada — cursor não avança, servidor reenvia a mesma janela.
 

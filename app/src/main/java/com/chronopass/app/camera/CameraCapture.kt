@@ -1,10 +1,14 @@
 package com.chronopass.app.camera
 
 import android.content.Context
+import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
@@ -34,7 +38,24 @@ fun CameraCapture(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val imageCapture = remember { ImageCapture.Builder().build() }
+    // Captura já perto do tamanho final (1280x960 > 960 finais, folga p/ a redução): sem JPEG cheio
+    // de 3-5 MB em disco. CLOSEST_HIGHER_THEN_LOWER só desce se o sensor não tiver algo acima.
+    val imageCapture = remember {
+        ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setResolutionSelector(
+                        ResolutionSelector.Builder()
+                                .setResolutionStrategy(
+                                        ResolutionStrategy(
+                                                Size(1280, 960),
+                                                ResolutionStrategy
+                                                        .FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+                                        )
+                                )
+                                .build()
+                )
+                .build()
+    }
     val previewView = remember { PreviewView(context) }
     val scope = rememberCoroutineScope()
     val providerRef = remember { arrayOfNulls<ProcessCameraProvider>(1) }
@@ -84,16 +105,20 @@ private fun takePhoto(
         tag: String,
         onPhoto: (File) -> Unit,
 ) {
-    val raw = PhotoStore.newRawFile(context, tag)
-    val options = ImageCapture.OutputFileOptions.Builder(raw).build()
     imageCapture.takePicture(
-            options,
             executor,
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(results: ImageCapture.OutputFileResults) {
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
                     scope.launch(Dispatchers.IO) {
-                        val compressed = PhotoCompressor.compress(raw)
-                        withContext(Dispatchers.Main) { onPhoto(compressed) }
+                        val out =
+                                image.use {
+                                    PhotoCompressor.compress(
+                                            it.toBitmap(),
+                                            it.imageInfo.rotationDegrees,
+                                            PhotoStore.newPhotoFile(context, tag),
+                                    )
+                                }
+                        withContext(Dispatchers.Main) { onPhoto(out) }
                     }
                 }
                 override fun onError(exc: ImageCaptureException) {

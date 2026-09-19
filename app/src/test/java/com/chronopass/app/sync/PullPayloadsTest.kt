@@ -136,4 +136,27 @@ class PullPayloadsTest {
             assertTrue("deveria falhar limpo: $body", PullPayloads.parse(body) is PullResult.Falha)
         }
     }
+
+    @Test
+    fun mergeUidsParseado_eAusenteViraListaVazia() {
+        val p =
+                ok(
+                        """
+                {
+                  "schemaVersion": 1,
+                  "serverTime": "2026-09-05T14:03:12.000Z",
+                  "store": null,
+                  "employees": [
+                    { "uid": "rh-1", "name": "Ana", "mergeUids": ["local-1", "local-2"] },
+                    { "uid": "rh-2", "name": "Bia" }
+                  ],
+                  "punchCorrections": []
+                }
+                """
+                )
+
+        assertEquals(listOf("local-1", "local-2"), p.employees[0].mergeUids)
+        // Servidor velho não manda o campo: lista vazia, nunca exceção.
+        assertEquals(emptyList<String>(), p.employees[1].mergeUids)
+    }
 }

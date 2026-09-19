@@ -92,6 +92,12 @@ object PullPayloads {
                     active = o.optBoolean("active", true),
                     deleted = o.optBoolean("deleted", false),
                     photoHash = o.strOrNull("photoHash"),
+                    // Ausente (servidor velho) -> lista vazia.
+                    mergeUids =
+                            o.optJSONArray("mergeUids")?.let { a ->
+                                (0 until a.length()).map { a.getString(it) }
+                            }
+                                    ?: emptyList(),
             )
 
     private fun correcao(o: JSONObject) =

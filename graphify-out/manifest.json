@@ -1,32 +1,32 @@
 {
   "app/build.gradle.kts": {
-    "mtime": 1788542929.6787322,
-    "seen": 1788542977.937157,
-    "ast_hash": "981a43322b62913803bef7e3895da5bc",
+    "mtime": 1789489699.655376,
+    "seen": 1789778229.5846949,
+    "ast_hash": "c7dbd7ea8f5bc9a5cf7e5d1a06f13cb7",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/MainActivity.kt": {
-    "mtime": 1788542759.21587,
-    "seen": 1788542977.937157,
+    "mtime": 1789489699.6563766,
+    "seen": 1789778229.5846949,
     "ast_hash": "fb11f688b22195d2833e824fb902950a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/backup/BackupManager.kt": {
-    "mtime": 1788540088.4802513,
-    "seen": 1788540158.5848217,
+    "mtime": 1789489699.6563766,
+    "seen": 1789778229.5846949,
     "ast_hash": "8b0e03fec47046d6af963341f59e23ef",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/camera/CameraCapture.kt": {
-    "mtime": 1788616468.6999314,
-    "seen": 1788616656.0925107,
-    "ast_hash": "ace96fe013f0881f60df796d8a2d89ee",
+    "mtime": 1789772875.4802468,
+    "seen": 1789778229.5846949,
+    "ast_hash": "016afb4de2c18c866a807199a270668e",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/camera/PhotoStore.kt": {
-    "mtime": 1788616468.6999314,
-    "seen": 1788616656.0925107,
-    "ast_hash": "0e8a4f473e2722bf1a498e58a4d64aea",
+    "mtime": 1789772875.4792469,
+    "seen": 1789778229.5846949,
+    "ast_hash": "5f1a73e3835e2b3dd7cf3eebe4eedee5",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/data/PunchRules.kt": {
@@ -36,27 +36,27 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/data/dao/Daos.kt": {
-    "mtime": 1788616320.1310084,
-    "seen": 1788616656.0925107,
-    "ast_hash": "71d2d3ed0ecec0e78c4d14d56fd4825a",
+    "mtime": 1789772903.0421693,
+    "seen": 1789778229.5846949,
+    "ast_hash": "427f4196754ee82f8785917fa308cf24",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/data/database/ChronoDatabase.kt": {
-    "mtime": 1788616303.9689462,
-    "seen": 1788616656.0925107,
-    "ast_hash": "04c45e5cffac4486cbee9f7219e86b92",
+    "mtime": 1789489699.658376,
+    "seen": 1789778229.5846949,
+    "ast_hash": "9661ccb846a6364d2a3c84d23e383eb1",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/data/entities/Entities.kt": {
-    "mtime": 1788616271.6215253,
-    "seen": 1788616656.0925107,
-    "ast_hash": "3c17d180f3aeacdb6722c2831c149563",
+    "mtime": 1789489699.658376,
+    "seen": 1789778229.5846949,
+    "ast_hash": "4742be59720763de1fdd538827123f9a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/data/repo/ChronoRepository.kt": {
-    "mtime": 1788617131.7094226,
-    "seen": 1788617362.9137836,
-    "ast_hash": "3acd30f12006c43253babf15ca9326c5",
+    "mtime": 1789772903.0421693,
+    "seen": 1789778229.5846949,
+    "ast_hash": "4e5118072c24abbae5efb4a02538d9a9",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/location/LocationHelper.kt": {
@@ -90,9 +90,9 @@
     "semantic_hash": "20ba72c30bc422890f639963c9790509"
   },
   "app/src/main/java/com/chronopass/app/ui/ChronoViewModel.kt": {
-    "mtime": 1788617181.3510623,
-    "seen": 1788617362.9137836,
-    "ast_hash": "40d4e022faffb039fa1b38f501da85ec",
+    "mtime": 1789489699.6603763,
+    "seen": 1789778229.5846949,
+    "ast_hash": "e1d86da3fcc060f91491790519255b5d",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/components/EmployeePicker.kt": {
@@ -114,9 +114,9 @@
     "semantic_hash": "f231b4ba39009d2bab04d34cb050ed52"
   },
   "app/src/main/java/com/chronopass/app/ui/screens/EmployeesScreen.kt": {
-    "mtime": 1787934019.9084928,
-    "seen": 1788540158.5848217,
-    "ast_hash": "56f5bc545c87e4fd141fe2ff4406ce7f",
+    "mtime": 1789772973.5006514,
+    "seen": 1789778229.5846949,
+    "ast_hash": "8f70c9b914f5999be1ff5b096d2d48a2",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/screens/HomeScreen.kt": {
@@ -126,9 +126,9 @@
     "semantic_hash": "01a4c91e3fd6b34f5a17e0cfaccb5766"
   },
   "app/src/main/java/com/chronopass/app/ui/screens/PunchScreen.kt": {
-    "mtime": 1788616468.7009246,
-    "seen": 1788616656.0925107,
-    "ast_hash": "71eabc01d8aef25cb5d88597b8870c46",
+    "mtime": 1789489699.6603763,
+    "seen": 1789778229.5846949,
+    "ast_hash": "f2fa1c0052ac35355f05f8a6b782752c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/screens/RecordsScreen.kt": {
@@ -144,8 +144,8 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/ui/screens/SettingsScreen.kt": {
-    "mtime": 1788617201.5990822,
-    "seen": 1788617362.9137836,
+    "mtime": 1789489699.6613767,
+    "seen": 1789778229.5846949,
     "ast_hash": "c7b62c9c01aff85abf2819824893a4bb",
     "semantic_hash": ""
   },
@@ -186,9 +186,9 @@
     "semantic_hash": "91af19dad503dcb95c8b7cdf80ac9568"
   },
   "README.md": {
-    "mtime": 1788634743.7298167,
-    "seen": 1788634845.1935844,
-    "ast_hash": "2652a0a53062602027fe7fd9ae60b751",
+    "mtime": 1789489699.655376,
+    "seen": 1789778229.5846949,
+    "ast_hash": "a6efdabe969f8c5625cc6abe3f33afef",
     "semantic_hash": ""
   },
   "app/src/main/assets/LEIA-ME.txt": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/camera/PhotoCompressor.kt": {
-    "mtime": 1788616468.6999314,
-    "seen": 1788616656.0925107,
-    "ast_hash": "ec1af831a72d57d9c42a861b1db6cbf5",
+    "mtime": 1789772875.4368594,
+    "seen": 1789778229.5846949,
+    "ast_hash": "eca5250a1a9057ac4b71d6e03345d82f",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/update/UpdateChecker.kt": {
@@ -246,111 +246,129 @@
     "semantic_hash": ""
   },
   "SUMUS-INTEGRACAO.md": {
-    "mtime": 1788634828.7624578,
-    "seen": 1788634845.1935844,
+    "mtime": 1789489699.655376,
+    "seen": 1789778229.5846949,
     "ast_hash": "af0e04e31e79e6a446d1d16e9b7dd6e0",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/SummusClient.kt": {
-    "mtime": 1788617110.4073763,
-    "seen": 1788617362.9137836,
-    "ast_hash": "684124aafeda25d83dbe590eafe78c9c",
+    "mtime": 1789489699.6593766,
+    "seen": 1789778229.5846949,
+    "ast_hash": "58503cbdf7b78388a81ad7e5aa40a33c",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/SummusPayloads.kt": {
-    "mtime": 1788616434.2666707,
-    "seen": 1788616656.0925107,
-    "ast_hash": "c83a510783df442528cde4d34d8a97e6",
+    "mtime": 1789489699.6593766,
+    "seen": 1789778229.5846949,
+    "ast_hash": "cd9ae48886884fa5d8419fde83edd876",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/OutboxPayloads.kt": {
-    "mtime": 1788616434.267656,
-    "seen": 1788616656.0925107,
-    "ast_hash": "843ffb58f6e500e55f1c85f73aa38d06",
+    "mtime": 1789489699.658376,
+    "seen": 1789778229.5846949,
+    "ast_hash": "89052490d088b8896b6e66f421540407",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/SyncManager.kt": {
-    "mtime": 1788617168.6395662,
-    "seen": 1788617362.9137836,
-    "ast_hash": "03e40ad5e0517e3bd7b7471a0c92635a",
+    "mtime": 1789489699.6593766,
+    "seen": 1789778229.5846949,
+    "ast_hash": "7ae60f2690240c35a80a84ed6aa67b36",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/UidTest.kt": {
-    "mtime": 1788542889.4644318,
-    "seen": 1788542977.937157,
+    "mtime": 1789489699.6613767,
+    "seen": 1789778229.5846949,
     "ast_hash": "55b53f1091c01ee218a47a00ce320320",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/sync/OutboxPayloadsTest.kt": {
-    "mtime": 1788542888.2317631,
-    "seen": 1788542977.937157,
+    "mtime": 1789489699.6623764,
+    "seen": 1789778229.5846949,
     "ast_hash": "be782984dd8d3cf831bba100bc3066f2",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/sync/SummusPayloadsTest.kt": {
-    "mtime": 1788568276.985559,
-    "seen": 1788616656.0925107,
+    "mtime": 1789489699.6623764,
+    "seen": 1789778229.5846949,
     "ast_hash": "a7fdef0262e1203edcac6f78154a57a4",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/camera/ImageScale.kt": {
-    "mtime": 1788616442.5349202,
-    "seen": 1788616656.0925107,
-    "ast_hash": "6f3585deb4cbd15a6a2db2c56d21024d",
+    "mtime": 1789772875.4195702,
+    "seen": 1789778229.5846949,
+    "ast_hash": "8e5b88c71b15020fc135c0f427ec09e0",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/SyncRules.kt": {
-    "mtime": 1788617076.4294877,
-    "seen": 1788617362.9137836,
-    "ast_hash": "35f9515f534208b2019bfaf7a99282f0",
+    "mtime": 1789772903.0411768,
+    "seen": 1789778229.5846949,
+    "ast_hash": "02bab2a9985371a84101bde878f96d5b",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/camera/ImageScaleTest.kt": {
-    "mtime": 1788616491.951213,
-    "seen": 1788616656.0925107,
-    "ast_hash": "3e605c3d1281c3ed946daa7fa3055fc0",
+    "mtime": 1789772875.497354,
+    "seen": 1789778229.5846949,
+    "ast_hash": "c470ef0665e72115ccad9fb0b57ab60d",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/data/repo/ApplyFromSummusTest.kt": {
-    "mtime": 1788617276.225479,
-    "seen": 1788617362.9137836,
-    "ast_hash": "44861732e57055cc791bfb3606b38901",
+    "mtime": 1789772973.5006514,
+    "seen": 1789778229.5846949,
+    "ast_hash": "33dba1b2dc763862601758b8370cd616",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/sync/SummusContractTest.kt": {
-    "mtime": 1788567466.4464378,
-    "seen": 1788616656.0925107,
+    "mtime": 1789489699.6623764,
+    "seen": 1789778229.5846949,
     "ast_hash": "a217d780edd6478443df561dbe89c745",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/sync/SyncRulesTest.kt": {
-    "mtime": 1788616506.1455963,
-    "seen": 1788616656.0925107,
-    "ast_hash": "b9c3f5ee3e91773db7caf8f00ec9f84e",
+    "mtime": 1789489699.6633768,
+    "seen": 1789778229.5846949,
+    "ast_hash": "24715ba216045476f85d9fe0a8ad3e76",
     "semantic_hash": ""
   },
   "docs/MANUAL-OPERACIONAL.md": {
-    "mtime": 1788569793.183033,
-    "seen": 1788616656.0925107,
+    "mtime": 1789489699.6633768,
+    "seen": 1789778229.5846949,
     "ast_hash": "658af2bc81dafcdb16efe88978223114",
     "semantic_hash": ""
   },
   "tech-docs/GUIA-TECNICO.md": {
-    "mtime": 1788634802.442768,
-    "seen": 1788634845.1935844,
+    "mtime": 1789489699.7101793,
+    "seen": 1789778229.5846949,
     "ast_hash": "d36596ccc902feb89b55264de618c13a",
     "semantic_hash": ""
   },
   "app/src/main/java/com/chronopass/app/sync/PullPayloads.kt": {
-    "mtime": 1788617069.700411,
-    "seen": 1788617362.9137836,
-    "ast_hash": "4b0ea348ec2d90b43000cebb0863dd09",
+    "mtime": 1789772903.0411768,
+    "seen": 1789778229.5846949,
+    "ast_hash": "6164f26abdf34d121eda3045b5ddb446",
     "semantic_hash": ""
   },
   "app/src/test/java/com/chronopass/app/sync/PullPayloadsTest.kt": {
-    "mtime": 1788617237.6447709,
-    "seen": 1788617362.9137836,
-    "ast_hash": "1272f4a9d9094b2e250398042081d143",
+    "mtime": 1789772981.4339638,
+    "seen": 1789778229.5846949,
+    "ast_hash": "0f5f3c6e07075d5abf29a31a61f17dcd",
+    "semantic_hash": ""
+  },
+  "plans/compressao-fotos.md": {
+    "mtime": 1789485270.814579,
+    "seen": 1789778229.5846949,
+    "ast_hash": "1f003adc95dba7badf6dcafa43b9c573",
+    "semantic_hash": ""
+  },
+  "plans/fotos-cold-storage-export.md": {
+    "mtime": 1789489000.5904894,
+    "seen": 1789778229.5846949,
+    "ast_hash": "3b3d5fa7be24cf1fc4c9b69bf1a678f2",
+    "semantic_hash": ""
+  },
+  "plans/merge-funcionario-duplicado-summus.md": {
+    "mtime": 1789484681.6087656,
+    "seen": 1789778229.5846949,
+    "ast_hash": "694f570d53f7fe57c991742e529f7faf",
     "semantic_hash": ""
   }
 }
