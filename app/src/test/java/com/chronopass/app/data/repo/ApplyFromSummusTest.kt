@@ -400,6 +400,29 @@ class ApplyFromSummusTest {
         }
     }
 
+    // Funcionário EXCLUÍDO no Summus (tombstone `deleted: true`): desativa quem o aparelho tem —
+    // nunca apaga — e ignora quem o aparelho nunca conheceu (não inventa linha na lixeira).
+    @Test
+    fun excluidoNoSummus_desativaOQueExisteEIgnoraODesconhecido() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "rh-1", name = "Ana")))
+        val out = FakeOutboxDao()
+        val repo = ChronoRepository(emp, FakePunchDao(), FakeStoreDao(), FakeSettingsDao(), out)
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(
+                                SummusEmployee(uid = "rh-1", name = "Ana", active = false, deleted = true),
+                                SummusEmployee(uid = "nunca-vi", name = "Fulano", active = false, deleted = true),
+                        )
+        )
+
+        assertEquals(1, emp.rows.size) // o desconhecido não virou linha
+        val ana = emp.rows.single()
+        assertFalse(ana.active)
+        assertFalse("lixeira é escolha local: o servidor não a liga", ana.deleted)
+        assertTrue(out.itens.isEmpty())
+    }
+
     // ---- Batida criada no backoffice (newPunches) ----
 
     private fun novaBatida(uid: String, donos: List<String>, deleted: Boolean = false, revisao: Int = 1) =
