@@ -13,6 +13,6 @@ Rules:
 - **`main`** = integração e branch padrão do GitHub; **`production`** = release. Fluxo:
   `feat/*` → `main` → `production`.
 - Push em `production` roda o `release.yml` (bump de versão, APK assinado, GitHub Release —
-  é o que alimenta o auto-update dos aparelhos). Localmente, `scriptselease.bat` faz o mesmo.
+  é o que alimenta o auto-update dos aparelhos). Localmente, `scripts\release.bat` faz o mesmo.
 - Mesmo padrão do Summus, cuja branch de integração é `development` (a `main` de lá está
   descontinuada).
