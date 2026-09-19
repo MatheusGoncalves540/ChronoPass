@@ -96,6 +96,18 @@ object SyncRules {
             )
 
     /**
+     * Quem fica na tela quando o vínculo junta cadastros da mesma pessoa. Só linhas VISÍVEIS (fora da
+     * lixeira) podem sobreviver — absorver para dentro de uma linha da lixeira esconderia o
+     * funcionário (bug da v2.2.2). Entre as visíveis vence o cadastro LOCAL da loja (uid diferente do
+     * do RH), que é o que ela já usa e tem o histórico; a linha criada pela descida do RH só sobra
+     * quando não há local visível. Null = tudo na lixeira.
+     */
+    fun escolherSobrevivente(grupo: List<Employee>, uidSummus: String): Employee? {
+        val vivos = grupo.filter { !it.deleted }
+        return vivos.firstOrNull { it.uid != uidSummus } ?: vivos.firstOrNull()
+    }
+
+    /**
      * Correção de ponto: sobrescreve horário/tipo/motivo e carimba a revisão aplicada. `deleted`
      * vira soft-delete (a linha fica; é o mesmo que a exclusão pela tela do app já faz).
      */
