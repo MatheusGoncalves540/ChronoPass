@@ -9,13 +9,11 @@ import java.util.*
 object PhotoStore {
     fun dir(context: Context): File = File(context.filesDir, "punches").apply { mkdirs() }
 
-    // ponytail: CameraX only captures straight to JPEG; PhotoCompressor re-encodes this and deletes
-    // it.
     // tag = uid do ponto: o carimbo de tempo tem resolução de SEGUNDOS e duas batidas no mesmo
-    // segundo se sobrescreviam.
-    fun newRawFile(context: Context, tag: String): File {
+    // segundo se sobrescreviam. O arquivo já nasce final (WebP comprimido).
+    fun newPhotoFile(context: Context, tag: String): File {
         val stamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
-        return File(dir(context), "${stamp}_$tag.jpg")
+        return File(dir(context), "${stamp}_$tag.webp")
     }
 
     fun employeeDir(context: Context): File = File(context.filesDir, "employees").apply { mkdirs() }
