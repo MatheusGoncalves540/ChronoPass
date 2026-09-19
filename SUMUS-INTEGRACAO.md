@@ -239,6 +239,11 @@ Envelope:
   a lixeira. Foto/hash continuam chegando pelo uid do RH e vão para a linha que sobrou (alias em
   `app_settings`, `summus_alias.<uid>`). Tudo dentro do seam anti-eco (nada é enfileirado),
   idempotente, sem migration de Room.
+- `deleted: true` em `employees[]` (funcionário **excluído** no Summus, só depois de desativado): item
+  sintético `{uid, name, active:false, deleted:true, mergeUids:[]}` que a loja recebe a cada pull (tombstone
+  `rh_employee_deletions`). O app **desativa** a linha que tiver com esse uid (nunca apaga; lixeira local
+  continua sendo escolha do aparelho) e ignora quem nunca conheceu. Os vínculos com cadastros locais já
+  foram desfeitos no servidor; as batidas ficam.
 - `newPunches` (aditivo; ausente = lista vazia): batidas **criadas no backoffice** depois de `since`
   (corte por instante de criação, não pelo horário da batida). O aparelho não as tem: cada uma é
   inserida como `Punch` (uid = o da batida, `serverRevision` = `revision`, sem foto/GPS, com
