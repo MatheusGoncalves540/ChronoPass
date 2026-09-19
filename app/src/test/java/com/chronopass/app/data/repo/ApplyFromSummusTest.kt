@@ -9,6 +9,7 @@ import com.chronopass.app.data.entities.*
 import com.chronopass.app.sync.Pull
 import com.chronopass.app.sync.StorePull
 import com.chronopass.app.sync.SummusEmployee
+import com.chronopass.app.sync.SummusNewPunch
 import com.chronopass.app.sync.SummusPunchCorrection
 import com.chronopass.app.ui.SUMUS_PULL_SINCE_KEY
 import kotlinx.coroutines.flow.Flow
@@ -397,6 +398,139 @@ class ApplyFromSummusTest {
             assertTrue("batida órfã: $ctx", pun.rows.all { it.employeeId in ids })
             assertEquals("batidas perdidas: $ctx", donos.size, pun.rows.size)
         }
+    }
+
+    // Funcionário EXCLUÍDO no Summus (tombstone `deleted: true`): desativa quem o aparelho tem —
+    // nunca apaga — e ignora quem o aparelho nunca conheceu (não inventa linha na lixeira).
+    @Test
+    fun excluidoNoSummus_desativaOQueExisteEIgnoraODesconhecido() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "rh-1", name = "Ana")))
+        val out = FakeOutboxDao()
+        val repo = ChronoRepository(emp, FakePunchDao(), FakeStoreDao(), FakeSettingsDao(), out)
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(
+                                SummusEmployee(uid = "rh-1", name = "Ana", active = false, deleted = true),
+                                SummusEmployee(uid = "nunca-vi", name = "Fulano", active = false, deleted = true),
+                        )
+        )
+
+        assertEquals(1, emp.rows.size) // o desconhecido não virou linha
+        val ana = emp.rows.single()
+        assertFalse(ana.active)
+        assertFalse("lixeira é escolha local: o servidor não a liga", ana.deleted)
+        assertTrue(out.itens.isEmpty())
+    }
+
+    // ---- Batida criada no backoffice (newPunches) ----
+
+    private fun novaBatida(uid: String, donos: List<String>, deleted: Boolean = false, revisao: Int = 1) =
+            SummusNewPunch(
+                    uid = uid,
+                    employeeUids = donos,
+                    type = PunchType.IN,
+                    timestamp = 8 * 3_600_000L,
+                    editedBy = "u-1",
+                    editedAt = 9 * 3_600_000L,
+                    editReason = "esqueceu de bater",
+                    deleted = deleted,
+                    revision = revisao,
+            )
+
+    @Test
+    fun novaBatida_entraParaOCadastroLocalVisivel_semEnfileirar_eEhIdempotente() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João"),
+                                Employee(id = 2, uid = "rh-1", name = "João", deleted = true),
+                        )
+                )
+        val pun = FakePunchDao()
+        val out = FakeOutboxDao()
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), out)
+
+        repeat(2) {
+            repo.applyFromSummus(novasBatidas = listOf(novaBatida("np-1", listOf("local-1", "rh-1"))))
+        }
+
+        val p = pun.rows.single() // 2ª aplicação não duplica
+        assertEquals(1L, p.employeeId)
+        assertEquals(PunchType.IN, p.type)
+        assertEquals(8 * 3_600_000L, p.timestamp)
+        assertEquals("esqueceu de bater", p.editReason)
+        assertEquals(1, p.serverRevision)
+        assertFalse(p.deleted)
+        assertTrue("batida vinda de cima não pode voltar", out.itens.isEmpty())
+    }
+
+    @Test
+    fun novaBatida_donoEhOPrimeiroCandidatoVisivel() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João", deleted = true), // lixeira
+                                Employee(id = 2, uid = "rh-1", name = "João"),
+                        )
+                )
+        val pun = FakePunchDao()
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(novasBatidas = listOf(novaBatida("np-1", listOf("local-1", "rh-1"))))
+
+        assertEquals(2L, pun.rows.single().employeeId)
+    }
+
+    @Test
+    fun novaBatida_tudoNaLixeira_naoPerdeABatida_eSemDonoEhIgnorada() = runBlocking {
+        val emp =
+                FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "local-1", name = "João", deleted = true)))
+        val pun = FakePunchDao()
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(
+                novasBatidas =
+                        listOf(
+                                novaBatida("np-1", listOf("local-1")),
+                                novaBatida("np-2", listOf("desconhecido-1")),
+                        )
+        )
+
+        assertEquals(listOf("np-1"), pun.rows.map { it.uid })
+        assertEquals(1L, pun.rows.single().employeeId)
+    }
+
+    @Test
+    fun novaBatida_criadaNoMesmoPullDoCadastro_eGuardaDeRevisaoValeParaACorrecao() = runBlocking {
+        val pun = FakePunchDao()
+        val repo =
+                ChronoRepository(FakeEmployeeDao(), pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        // O cadastro do RH desce no MESMO pull (a batida é de alguém que o aparelho ainda não tinha).
+        repo.applyFromSummus(
+                funcionarios = listOf(SummusEmployee(uid = "rh-1", name = "Ana")),
+                correcoes = listOf(correcao(uid = "np-1", revisao = 1)),
+                novasBatidas = listOf(novaBatida("np-1", listOf("rh-1"), revisao = 1)),
+        )
+
+        val p = pun.rows.single()
+        assertEquals(1, p.serverRevision)
+        // A correção da mesma revisão (já embutida na criação) não sobrescreve nada.
+        assertEquals(8 * 3_600_000L, p.timestamp)
+        assertEquals(0, pun.updates)
+    }
+
+    @Test
+    fun novaBatida_excluidaNoBackoffice_entraMarcadaComoExcluida() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "rh-1", name = "Ana")))
+        val pun = FakePunchDao()
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(novasBatidas = listOf(novaBatida("np-1", listOf("rh-1"), deleted = true, revisao = 2)))
+
+        assertTrue(pun.rows.single().deleted)
+        assertEquals(2, pun.rows.single().serverRevision)
     }
 
     // --- helpers ---

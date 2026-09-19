@@ -39,6 +39,8 @@ data class Pull(
         val store: StorePull?,
         val employees: List<SummusEmployee>,
         val correcoes: List<SummusPunchCorrection>,
+        // Batidas criadas no backoffice. Ausente (servidor velho) -> lista vazia.
+        val novasBatidas: List<SummusNewPunch> = emptyList(),
 )
 
 sealed interface PullResult {
@@ -65,6 +67,9 @@ object PullPayloads {
                                     store = o.optJSONObject("store")?.let { store(it) },
                                     employees = o.lista("employees") { employee(it) },
                                     correcoes = o.lista("punchCorrections") { correcao(it) },
+                                    novasBatidas =
+                                            if (o.has("newPunches")) o.lista("newPunches") { novaBatida(it) }
+                                            else emptyList(),
                             )
                     )
                 }
@@ -110,6 +115,22 @@ object PullPayloads {
                     editReason = o.strOrNull("editReason"),
                     deleted = o.optBoolean("deleted", false),
                     revision = o.getInt("revision"),
+            )
+
+    private fun novaBatida(o: JSONObject) =
+            SummusNewPunch(
+                    uid = o.getString("uid"),
+                    employeeUids =
+                            o.getJSONArray("employeeUids").let { a ->
+                                (0 until a.length()).map { a.getString(it) }
+                            },
+                    type = punchType(o.getString("punchType")),
+                    timestamp = epochMs(o.getString("timestampUtc")),
+                    editedBy = o.strOrNull("editedBy"),
+                    editedAt = o.strOrNull("editedAt")?.let { epochMs(it) },
+                    editReason = o.strOrNull("editReason"),
+                    deleted = o.optBoolean("deleted", false),
+                    revision = o.optInt("revision", 1),
             )
 
     /** "in"/"out" do servidor -> enum do app. Desconhecido derruba o pull inteiro (nunca some). */

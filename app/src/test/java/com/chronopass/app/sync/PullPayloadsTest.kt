@@ -159,4 +159,42 @@ class PullPayloadsTest {
         // Servidor velho não manda o campo: lista vazia, nunca exceção.
         assertEquals(emptyList<String>(), p.employees[1].mergeUids)
     }
+
+    @Test
+    fun newPunchesParseado_eAusenteViraListaVazia() {
+        val comBatida =
+                ok(
+                        """
+                {
+                  "schemaVersion": 1,
+                  "serverTime": "2026-09-05T14:03:12.000Z",
+                  "store": null,
+                  "employees": [],
+                  "punchCorrections": [],
+                  "newPunches": [
+                    { "uid": "np-1", "employeeUids": ["local-1", "rh-1"], "punchType": "out",
+                      "timestampUtc": "2026-09-05T11:00:00.000Z", "tzOffsetMinutes": -180,
+                      "editedBy": "u-1", "editedAt": "2026-09-05T12:00:00.000Z",
+                      "editReason": "esqueceu de bater", "deleted": false, "revision": 1 }
+                  ]
+                }
+                """
+                )
+        val n = comBatida.novasBatidas.single()
+        assertEquals("np-1", n.uid)
+        assertEquals(listOf("local-1", "rh-1"), n.employeeUids)
+        assertEquals(PunchType.OUT, n.type)
+        assertEquals(1_788_606_000_000L, n.timestamp)
+        assertEquals("esqueceu de bater", n.editReason)
+
+        // Servidor velho não manda o campo: lista vazia, nunca exceção.
+        val semCampo =
+                ok(
+                        """
+                { "schemaVersion": 1, "serverTime": "2026-09-05T14:03:12.000Z", "store": null,
+                  "employees": [], "punchCorrections": [] }
+                """
+                )
+        assertEquals(emptyList<SummusNewPunch>(), semCampo.novasBatidas)
+    }
 }
