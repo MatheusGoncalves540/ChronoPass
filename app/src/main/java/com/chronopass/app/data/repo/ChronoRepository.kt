@@ -7,6 +7,7 @@ import com.chronopass.app.data.entities.*
 import com.chronopass.app.sync.OutboxPayloads
 import com.chronopass.app.sync.Pull
 import com.chronopass.app.sync.SummusEmployee
+import com.chronopass.app.sync.SummusNewPunch
 import com.chronopass.app.sync.SummusPunchCorrection
 import com.chronopass.app.sync.SyncRules
 import com.chronopass.app.ui.SUMUS_PULL_SINCE_KEY
@@ -150,6 +151,7 @@ internal constructor(
     suspend fun applyFromSummus(
             funcionarios: List<SummusEmployee> = emptyList(),
             correcoes: List<SummusPunchCorrection> = emptyList(),
+            novasBatidas: List<SummusNewPunch> = emptyList(),
     ) =
             withContext(Dispatchers.IO) {
                 for (s in funcionarios) {
@@ -178,6 +180,10 @@ internal constructor(
                     absorver(atual, grupo.filter { it.id != sobrevivente.id })
                     registrarAlias(s.uid, atual.uid)
                 }
+                // Batidas criadas no backoffice: DEPOIS do cadastro (o dono precisa existir) e
+                // ANTES das correções (uma correção da mesma batida no mesmo pull cai na guarda de
+                // revisão). Idempotente pelo uid.
+                for (n in novasBatidas) inserirBatidaDoBackoffice(n)
                 for (c in correcoes) {
                     // Ponto que este aparelho não tem (outro aparelho da loja): ignora.
                     val local = punches.punchByUid(c.uid) ?: continue
@@ -185,6 +191,30 @@ internal constructor(
                     punches.update(SyncRules.mergePunch(local, c))
                 }
             }
+
+    // Batida lançada no backoffice: entra na tela do aparelho como qualquer outra (a próxima
+    // Entrada/Saída passa a contar com ela). Dono = primeiro candidato com linha VISÍVEL; se todas
+    // estão na lixeira, a primeira que existir (não perde a batida); sem linha nenhuma o aparelho
+    // não conhece a pessoa — ignora (o servidor só aceita funcionário da loja). Não enfileira
+    // (seam anti-eco): o Summus já a tem.
+    private suspend fun inserirBatidaDoBackoffice(n: SummusNewPunch) {
+        if (punches.punchByUid(n.uid) != null) return
+        val donos = n.employeeUids.mapNotNull { employees.employeeByUid(it) }
+        val dono = donos.firstOrNull { !it.deleted } ?: donos.firstOrNull() ?: return
+        punches.insert(
+                Punch(
+                        uid = n.uid,
+                        employeeId = dono.id,
+                        timestamp = n.timestamp,
+                        type = n.type,
+                        editedBy = n.editedBy,
+                        editedAt = n.editedAt,
+                        editReason = n.editReason,
+                        deleted = n.deleted,
+                        serverRevision = n.revision,
+                )
+        )
+    }
 
     // Vínculo confirmado no Summus: as batidas das linhas duplicadas passam para o SOBREVIVENTE e as
     // duplicadas ainda ativas vão para a lixeira (nunca DELETE — vínculo errado continua
@@ -218,7 +248,7 @@ internal constructor(
      */
     suspend fun applyPull(p: Pull) =
             withContext(Dispatchers.IO) {
-                applyFromSummus(p.employees, p.correcoes)
+                applyFromSummus(p.employees, p.correcoes, p.novasBatidas)
                 p.store?.let { s ->
                     val atual = stores.getOnce()
                     // insert é REPLACE: mantém o id da linha única de loja em vez de criar outra.

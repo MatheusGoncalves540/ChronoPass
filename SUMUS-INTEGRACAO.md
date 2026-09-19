@@ -216,6 +216,11 @@ Envelope:
   "punchCorrections": [
     { "uid": "...", "punchType": "in", "timestampUtc": "...", "editedBy": "...", "editedAt": "...",
       "editReason": "...", "deleted": false, "revision": 3 }
+  ],
+  "newPunches": [
+    { "uid": "<uuid-da-batida>", "employeeUids": ["<uid-local-vinculado>", "<rh_employees.id>"],
+      "punchType": "in", "timestampUtc": "...", "tzOffsetMinutes": -180, "editedBy": "<user id>",
+      "editedAt": "...", "editReason": "esqueceu de bater", "deleted": false, "revision": 1 }
   ]
 }
 ```
@@ -234,6 +239,14 @@ Envelope:
   a lixeira. Foto/hash continuam chegando pelo uid do RH e vão para a linha que sobrou (alias em
   `app_settings`, `summus_alias.<uid>`). Tudo dentro do seam anti-eco (nada é enfileirado),
   idempotente, sem migration de Room.
+- `newPunches` (aditivo; ausente = lista vazia): batidas **criadas no backoffice** depois de `since`
+  (corte por instante de criação, não pelo horário da batida). O aparelho não as tem: cada uma é
+  inserida como `Punch` (uid = o da batida, `serverRevision` = `revision`, sem foto/GPS, com
+  `editedBy`/`editReason` de quem lançou e por quê). O dono é o **primeiro** de `employeeUids` com
+  linha visível (cadastros locais vinculados primeiro, uid do RH por último); só lixeira → a primeira
+  que existir; nenhuma → ignora. Depois do cadastro e antes das correções no mesmo pull; idempotente
+  pelo uid; dentro do seam anti-eco (nada é enfileirado). O app nunca sobe essas batidas — o Summus já
+  as tem (`device_id = "backoffice"`, reservado: um aparelho não pode usar esse id).
 - Envelope inválido, `schemaVersion` diferente do esperado ou `punchType` desconhecido derrubam
   o pull inteiro sem aplicar nada — cursor não avança, servidor reenvia a mesma janela.
 
