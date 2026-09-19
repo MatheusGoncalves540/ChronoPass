@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 // ponytail: chave em app_settings em vez de coluna nova em employee — evita migration v6 para
 // um dado que nem é do domínio (é estado de sync). Coluna quando alguma query precisar filtrar.
 private fun photoHashKey(uid: String) = "summus_photo_hash.$uid"
+private fun aliasKey(uidSummus: String) = "summus_alias.$uidSummus"
 
 // ponytail: one repository over all DAOs; the app is small enough that
 // four repositories would just be four passthrough files.
@@ -152,19 +153,30 @@ internal constructor(
     ) =
             withContext(Dispatchers.IO) {
                 for (s in funcionarios) {
-                    val local = employees.employeeByUid(s.uid)
-                    val canonica =
-                            when {
-                                local != null ->
-                                        SyncRules.mergeEmployee(local, s).also { employees.update(it) }
-                                // Baixa desconhecida: nada a criar (não inventa linha na lixeira).
-                                s.deleted -> continue
-                                else ->
-                                        SyncRules.novoEmployee(s).let {
-                                            it.copy(id = employees.insert(it))
-                                        }
-                            }
-                    absorver(canonica, s.mergeUids)
+                    val porUid = employees.employeeByUid(s.uid)
+                    // Duplicatas que o vínculo declarou serem a mesma pessoa (cadastro local do app).
+                    val dups =
+                            s.mergeUids
+                                    .mapNotNull { employees.employeeByUid(it) }
+                                    .filter { it.id != porUid?.id }
+                                    .distinctBy { it.id }
+                    val grupo = listOfNotNull(porUid) + dups
+                    if (grupo.isEmpty()) {
+                        // Baixa desconhecida: nada a criar (não inventa linha na lixeira).
+                        if (!s.deleted) employees.insert(SyncRules.novoEmployee(s))
+                        continue
+                    }
+                    val sobrevivente = SyncRules.escolherSobrevivente(grupo, s.uid)
+                    if (sobrevivente == null) {
+                        // Tudo na lixeira: a lixeira é escolha do usuário — não ressuscita nem cria
+                        // linha nova. (Comportamento de sempre para a linha casada por uid.)
+                        porUid?.let { employees.update(SyncRules.mergeEmployee(it, s)) }
+                        continue
+                    }
+                    val atual = SyncRules.mergeEmployee(sobrevivente, s)
+                    employees.update(atual)
+                    absorver(atual, grupo.filter { it.id != sobrevivente.id })
+                    registrarAlias(s.uid, atual.uid)
                 }
                 for (c in correcoes) {
                     // Ponto que este aparelho não tem (outro aparelho da loja): ignora.
@@ -174,20 +186,27 @@ internal constructor(
                 }
             }
 
-    // Vínculo confirmado no Summus: as batidas da linha duplicada passam para a canônica e a
-    // duplicada vai para a lixeira (nunca DELETE — vínculo errado continua recuperável).
-    // Idempotente: `dup.deleted` corta a segunda passada (o merge não sobe, então o uid segue
-    // vindo em mergeUids a cada pull).
-    private suspend fun absorver(canonica: Employee, uids: List<String>) {
-        var foto = canonica.photoPath
-        for (uid in uids) {
-            val dup = employees.employeeByUid(uid) ?: continue
-            if (dup.id == canonica.id || dup.deleted) continue
-            punches.repointEmployee(dup.id, canonica.id)
+    // Vínculo confirmado no Summus: as batidas das linhas duplicadas passam para o SOBREVIVENTE e as
+    // duplicadas ainda ativas vão para a lixeira (nunca DELETE — vínculo errado continua
+    // recuperável). O sobrevivente é sempre uma linha VISÍVEL (SyncRules.escolherSobrevivente), então
+    // absorver nunca esconde o funcionário. Idempotente: repetir não muda nada (o merge não sobe —
+    // seam anti-eco — e o uid segue vindo em mergeUids a cada pull).
+    private suspend fun absorver(sobrevivente: Employee, outras: List<Employee>) {
+        var foto = sobrevivente.photoPath
+        for (dup in outras) {
+            punches.repointEmployee(dup.id, sobrevivente.id)
             if (foto == null) foto = dup.photoPath
-            employees.softDelete(dup.id)
+            if (!dup.deleted) employees.softDelete(dup.id)
         }
-        if (foto != canonica.photoPath) employees.update(canonica.copy(photoPath = foto))
+        if (foto != sobrevivente.photoPath) employees.update(sobrevivente.copy(photoPath = foto))
+    }
+
+    // A foto/hash do Summus vêm pelo uid do RH; se quem sobrou é o cadastro local (outro uid), o
+    // alias diz onde aplicar a foto. Só grava quando muda (não gera escrita a cada pull).
+    private suspend fun registrarAlias(uidSummus: String, uidLocal: String?) {
+        if (uidLocal == null || uidLocal == uidSummus) return
+        if (settings.get(aliasKey(uidSummus)) != uidLocal)
+                settings.set(AppSetting(aliasKey(uidSummus), uidLocal))
     }
 
     /**
@@ -228,7 +247,11 @@ internal constructor(
      */
     suspend fun applyEmployeePhotoFromSummus(uid: String, photoPath: String, hash: String) =
             withContext(Dispatchers.IO) {
-                val local = employees.employeeByUid(uid) ?: return@withContext
+                val alvo = settings.get(aliasKey(uid)) ?: uid
+                val local =
+                        employees.employeeByUid(alvo)
+                                ?: employees.employeeByUid(uid)
+                                ?: return@withContext
                 employees.update(local.copy(photoPath = photoPath))
                 settings.set(AppSetting(photoHashKey(uid), hash))
             }

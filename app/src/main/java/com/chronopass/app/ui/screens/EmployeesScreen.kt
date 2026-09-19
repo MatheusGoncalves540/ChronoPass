@@ -129,7 +129,10 @@ private fun EmployeeDialog(
     // ponytail: só trim + ignoreCase, sem dobra de acento ("João" x "Joao" passam) — a dobra
     // completa vive no servidor (normalizeNameForMatch). vm.allEmployees não inclui a lixeira,
     // de propósito. Só a tela: a descida do Summus pode trazer homônimo (é o que o merge resolve).
-    val nomeRepetido = nomesEmUso.any { it.trim().equals(name.trim(), ignoreCase = true) }
+    // Só vale quando o nome MUDA: quem já tem homônimo (o caso dos duplicados que o vínculo ainda
+    // não juntou) precisa continuar editável — ativar/desativar, foto — sem trocar o nome.
+    val nomeMudou = employee == null || !employee.name.trim().equals(name.trim(), ignoreCase = true)
+    val nomeRepetido = nomeMudou && nomesEmUso.any { it.trim().equals(name.trim(), ignoreCase = true) }
     var code by remember { mutableStateOf(employee?.code ?: "") }
     var active by remember { mutableStateOf(employee?.active ?: true) }
     var photoPath by remember { mutableStateOf(employee?.photoPath) }

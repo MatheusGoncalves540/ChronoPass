@@ -201,7 +201,7 @@ class ApplyFromSummusTest {
     }
 
     @Test
-    fun mergeUids_moveBatidasParaCanonicaEMandaDuplicataParaLixeira() = runBlocking {
+    fun mergeUids_moveBatidasParaALocalEMandaADuplicataDoRHParaLixeira() = runBlocking {
         val emp =
                 FakeEmployeeDao(
                         mutableListOf(
@@ -222,34 +222,36 @@ class ApplyFromSummusTest {
 
         repo.applyFromSummus(funcionarios = pull)
 
-        assertEquals(listOf(2L, 2L), pun.rows.map { it.employeeId })
-        assertTrue(emp.rows.first { it.uid == "local-1" }.deleted)
-        assertFalse(emp.rows.first { it.uid == "rh-1" }.deleted)
-        // Foto de cadastro da local herdada: a canônica não tinha.
-        assertEquals("/f/j.webp", emp.rows.first { it.uid == "rh-1" }.photoPath)
+        // Sobrevive a linha LOCAL (a que a loja já usa); as batidas dos dois cadastros ficam nela.
+        assertEquals(listOf(1L, 1L), pun.rows.map { it.employeeId })
+        assertFalse(emp.rows.first { it.uid == "local-1" }.deleted)
+        assertTrue(emp.rows.first { it.uid == "rh-1" }.deleted)
+        assertEquals("/f/j.webp", emp.rows.first { it.uid == "local-1" }.photoPath)
         assertTrue("merge não sobe (anti-eco)", out.itens.isEmpty())
 
         // Segunda aplicação do mesmo pull: nada muda (idempotente).
-        val antes = pun.repoints
         repo.applyFromSummus(funcionarios = pull)
-        assertEquals(antes, pun.repoints)
-        assertEquals(listOf(2L, 2L), pun.rows.map { it.employeeId })
+        assertEquals(listOf(1L, 1L), pun.rows.map { it.employeeId })
+        assertEquals(1, emp.rows.count { !it.deleted })
     }
 
     @Test
-    fun mergeUids_canonicaNovaEhCriadaEDuplicataAbsorvidaNaMesmaPassada() = runBlocking {
-        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "local-1", name = "João")))
-        val pun = FakePunchDao(mutableListOf(punch(uid = "p-1", revisao = 0, employeeId = 1)))
-        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+    fun mergeUids_fotoDaLinhaDoRHVaiParaALocalQuandoElaNaoTem() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João"),
+                                Employee(id = 2, uid = "rh-1", name = "João", photoPath = "/f/rh.webp"),
+                        )
+                )
+        val repo = ChronoRepository(emp, FakePunchDao(), FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
 
         repo.applyFromSummus(
                 funcionarios =
                         listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
         )
 
-        val canonica = emp.rows.first { it.uid == "rh-1" }
-        assertEquals(canonica.id, pun.rows.single().employeeId)
-        assertTrue(emp.rows.first { it.uid == "local-1" }.deleted)
+        assertEquals("/f/rh.webp", emp.rows.first { it.uid == "local-1" }.photoPath)
     }
 
     @Test
@@ -271,6 +273,130 @@ class ApplyFromSummusTest {
 
         assertEquals(0, pun.repoints)
         assertFalse(emp.rows.single().deleted)
+    }
+
+    // Regressão do sumiço (v2.2.2): o cadastro do RH já estava na LIXEIRA (alguém apagou a "segunda
+    // linha" pelo app) e o local estava ativo. O merge absorvia o local para dentro da linha da
+    // lixeira -> as duas ficavam ocultas e o funcionário sumia da tela de ponto.
+    @Test
+    fun mergeUids_canonicaNaLixeira_naoFazOFuncionarioSumir() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João"),
+                                Employee(id = 2, uid = "rh-1", name = "João", deleted = true),
+                        )
+                )
+        val pun = FakePunchDao(mutableListOf(punch(uid = "p-1", revisao = 0, employeeId = 1)))
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
+        )
+
+        assertEquals("o funcionário tem de continuar visível", 1, emp.rows.count { !it.deleted })
+        assertFalse(emp.rows.first { it.uid == "local-1" }.deleted)
+        assertEquals("batidas seguem numa linha visível", 1L, pun.rows.single().employeeId)
+    }
+
+    // O funcionário criado LOCALMENTE é o que fica na tela: o Summus só atualiza os dados dele, e a
+    // linha do RH (duplicata) é que vai para a lixeira, levando as batidas para a local.
+    @Test
+    fun mergeUids_linhaLocalSobrevive_eNaoNasceLinhaDoRH() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "local-1", name = "joao")))
+        val pun = FakePunchDao(mutableListOf(punch(uid = "p-1", revisao = 0, employeeId = 1)))
+        val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+        val pull =
+                listOf(
+                        SummusEmployee(
+                                uid = "rh-1",
+                                name = "João da Silva",
+                                role = "Caixa",
+                                mergeUids = listOf("local-1"),
+                        )
+                )
+
+        repo.applyFromSummus(funcionarios = pull)
+
+        assertEquals("não cria linha do RH quando já existe a local", listOf("local-1"), emp.rows.map { it.uid })
+        val local = emp.rows.single()
+        assertFalse(local.deleted)
+        assertEquals("João da Silva", local.name) // Summus manda em nome/cargo
+        assertEquals("Caixa", local.role)
+        assertEquals(1L, pun.rows.single().employeeId)
+
+        repo.applyFromSummus(funcionarios = pull) // idempotente
+        assertEquals(1, emp.rows.size)
+        assertEquals(1L, pun.rows.single().employeeId)
+    }
+
+    // Tudo na lixeira = escolha do usuário: respeita (não ressuscita, não cria linha nova).
+    @Test
+    fun mergeUids_tudoNaLixeira_respeitaALixeira() = runBlocking {
+        val emp =
+                FakeEmployeeDao(
+                        mutableListOf(
+                                Employee(id = 1, uid = "local-1", name = "João", deleted = true),
+                                Employee(id = 2, uid = "rh-1", name = "João", deleted = true),
+                        )
+                )
+        val repo = ChronoRepository(emp, FakePunchDao(), FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
+        )
+
+        assertEquals(2, emp.rows.size)
+        assertTrue(emp.rows.all { it.deleted })
+    }
+
+    // A foto do RH vem pelo uid do RH, mas tem de aparecer na linha que sobrou (a local).
+    @Test
+    fun mergeUids_fotoDoRHVaiParaALinhaQueSobrou() = runBlocking {
+        val emp = FakeEmployeeDao(mutableListOf(Employee(id = 1, uid = "local-1", name = "João")))
+        val cfg = FakeSettingsDao()
+        val repo = ChronoRepository(emp, FakePunchDao(), FakeStoreDao(), cfg, FakeOutboxDao())
+        repo.applyFromSummus(
+                funcionarios =
+                        listOf(SummusEmployee(uid = "rh-1", name = "João", mergeUids = listOf("local-1")))
+        )
+
+        repo.applyEmployeePhotoFromSummus("rh-1", "/f/summus_rh-1.webp", "h1")
+
+        assertEquals("/f/summus_rh-1.webp", emp.rows.single().photoPath)
+        assertEquals("h1", repo.photoHashSummus("rh-1"))
+    }
+
+    // Invariante: para QUALQUER combinação de estados (ausente/ativa/lixeira) da linha do RH e da
+    // local, um funcionário que estava visível continua visível e nenhuma batida fica sem dono.
+    @Test
+    fun merge_nuncaEscondeFuncionarioVisivel_emNenhumaCombinacao() = runBlocking {
+        val estados = listOf<Boolean?>(null, false, true) // null = linha ausente; senão = deleted
+        for (rh in estados) for (local in estados) {
+            val rows = mutableListOf<Employee>()
+            if (local != null) rows += Employee(id = 1, uid = "local-1", name = "A", deleted = local)
+            if (rh != null) rows += Employee(id = 2, uid = "rh-1", name = "A", deleted = rh)
+            val donos = rows.map { it.id }
+            val pun = FakePunchDao(donos.mapIndexed { i, id -> punch("p-$i", 0, id).copy(id = 10L + i) }.toMutableList())
+            val emp = FakeEmployeeDao(rows)
+            val vivoAntes = rows.any { !it.deleted }
+            val repo = ChronoRepository(emp, pun, FakeStoreDao(), FakeSettingsDao(), FakeOutboxDao())
+
+            repeat(2) {
+                repo.applyFromSummus(
+                        funcionarios =
+                                listOf(SummusEmployee(uid = "rh-1", name = "A", mergeUids = listOf("local-1")))
+                )
+            }
+
+            val ctx = "rh=$rh local=$local"
+            if (vivoAntes) assertTrue("sumiu: $ctx", emp.rows.any { !it.deleted })
+            val ids = emp.rows.map { it.id }.toSet()
+            assertTrue("batida órfã: $ctx", pun.rows.all { it.employeeId in ids })
+            assertEquals("batidas perdidas: $ctx", donos.size, pun.rows.size)
+        }
     }
 
     // --- helpers ---
