@@ -8,3 +8,11 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
+## Branches e release
+
+- **`main`** = integração e branch padrão do GitHub; **`production`** = release. Fluxo:
+  `feat/*` → `main` → `production`.
+- Push em `production` roda o `release.yml` (bump de versão, APK assinado, GitHub Release —
+  é o que alimenta o auto-update dos aparelhos). Localmente, `scriptselease.bat` faz o mesmo.
+- Mesmo padrão do Summus, cuja branch de integração é `development` (a `main` de lá está
+  descontinuada).
